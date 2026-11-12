@@ -388,12 +388,6 @@
     <div id="keyboard-body"></div>
   </div>
 
-  <div class="gojuon-card">
-    <h2>五十音表（母音 × 子音）</h2>
-    <button type="button" class="mode-btn gojuon-toggle" id="btn-gojuon-toggle">隱藏五十音表</button>
-    <div id="gojuon-body"></div>
-  </div>
-
   <div class="footer-note">
     建議練習：先記住 F 與 J 兩個家長鍵位（有凸點），雙手食指置於其上，眼睛看螢幕不要看鍵盤。日文假名對應 JIS 鍵盤配列。<br>
     <a href="gojuon.html" style="color:var(--accent);font-weight:700;">五十音表（母音 × 子音）→</a>
@@ -1320,21 +1314,8 @@ updateWordHint();
     body.appendChild(table);
   }
 
-  document.getElementById('btn-gojuon-toggle').addEventListener('click', () => {
-    const body = document.getElementById('gojuon-body');
-    const btn = document.getElementById('btn-gojuon-toggle');
-    if (body.style.display === 'none') {
-      body.style.display = '';
-      btn.textContent = '隱藏五十音表';
-    } else {
-      body.style.display = 'none';
-      btn.textContent = '顯示五十音表';
-    }
-  });
-
   computeAllowedKeys();
   buildKeyboard();
-  buildGojuon();
   updateScore();
   updateTimerDisplay();
   nextExploreTarget();
