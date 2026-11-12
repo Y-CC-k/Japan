@@ -353,7 +353,6 @@
 
       <div class="setting-group">
         <button type="button" id="btn-enable-voice" class="warn">🔈 啟用聲音</button>
-        <button type="button" id="btn-test-sound">🔔 測試聲音</button>
         <button type="button" id="btn-speak">🔊 重複發音</button>
         <button type="button" id="btn-next-min" class="ok-btn" style="display:none;">➡️ 開始下一分鐘</button>
         <button type="button" id="btn-reset" class="secondary">🔄 歸零計分</button>
@@ -513,7 +512,6 @@
   const $displayCard = document.getElementById('display-card');
   const $kb = document.getElementById('keyboard-body');
   const $btnEnable = document.getElementById('btn-enable-voice');
-  const $btnTest = document.getElementById('btn-test-sound');
   const $btnSpeak = document.getElementById('btn-speak');
   const $btnNextMin = document.getElementById('btn-next-min');
   const $btnReset = document.getElementById('btn-reset');
@@ -1176,10 +1174,6 @@ updateWordHint();
   });
 
   $btnEnable.addEventListener('click', initVoice);
-  $btnTest.addEventListener('click', () => {
-    playTone(800, 0.2, 'sine', 0, 0.12);
-    if (voiceEnabled) speakKana('あ');
-  });
   $btnSpeak.addEventListener('click', () => {
     if (challengeMode && currentTarget) speakKana(keyKana(currentTarget));
     else if ($keyLabel.textContent) speakKana(KANA_MAP[$keyLabel.textContent] || $keyLabel.textContent);
