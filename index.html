@@ -773,7 +773,8 @@
 
   function updateRomajiHint(key) {
     if (!showRomaji) { $romajiLabel.textContent = ''; $bigRomaji.textContent = ''; document.getElementById('romaji-hint').style.display = 'none'; return; }
-    document.getElementById('romaji-hint').style.display = '';
+    // standalone romaji line hidden per user request
+    document.getElementById('romaji-hint').style.display = 'none';
     const k = key || currentTarget || exploreTarget;
     const r = currentRomaji(k);
     $romajiLabel.textContent = r ? r : '';
