@@ -1,0 +1,303 @@
+﻿window.JA_DATA = {
+  "metadata": {
+    "title": "日文五十音與基礎單字對照表",
+    "version": "2.0",
+    "language": "ja / zh-Hant-TW",
+    "counts": {
+      "seion": 46,
+      "dakuon": 20,
+      "handakuon": 5,
+      "yoon": 33
+    }
+  },
+  "seion": [
+    {
+      "row": "あ行",
+      "column": "a段",
+      "hiragana": "あ",
+      "katakana": "ア",
+      "romaji": "a",
+      "hiragana_word": { "kana": "あめ", "kanji": "雨", "romaji": "ame", "meaning_zh": "雨" },
+      "katakana_word": { "katakana": "アイス", "romaji": "aisu", "meaning_zh": "冰淇淋" }
+    },
+    {
+      "row": "あ行",
+      "column": "i段",
+      "hiragana": "い",
+      "katakana": "イ",
+      "romaji": "i",
+      "hiragana_word": { "kana": "いぬ", "kanji": "犬", "romaji": "inu", "meaning_zh": "狗" },
+      "katakana_word": { "katakana": "インク", "romaji": "inku", "meaning_zh": "墨水" }
+    },
+    {
+      "row": "あ行",
+      "column": "u段",
+      "hiragana": "う",
+      "katakana": "ウ",
+      "romaji": "u",
+      "hiragana_word": { "kana": "うみ", "kanji": "海", "romaji": "umi", "meaning_zh": "大海" },
+      "katakana_word": { "katakana": "ウイルス", "romaji": "uirusu", "meaning_zh": "病毒" }
+    },
+    {
+      "row": "あ行",
+      "column": "e段",
+      "hiragana": "え",
+      "katakana": "エ",
+      "romaji": "e",
+      "hiragana_word": { "kana": "えき", "kanji": "駅", "romaji": "eki", "meaning_zh": "車站" },
+      "katakana_word": { "katakana": "エアコン", "romaji": "eakon", "meaning_zh": "冷氣機" }
+    },
+    {
+      "row": "あ行",
+      "column": "o段",
+      "hiragana": "お",
+      "katakana": "オ",
+      "romaji": "o",
+      "hiragana_word": { "kana": "おちゃ", "kanji": "お茶", "romaji": "ocha", "meaning_zh": "茶" },
+      "katakana_word": { "katakana": "オレンジ", "romaji": "orenji", "meaning_zh": "柳橙" }
+    },
+    {
+      "row": "か行",
+      "column": "a段",
+      "hiragana": "か",
+      "katakana": "カ",
+      "romaji": "ka",
+      "hiragana_word": { "kana": "かさ", "kanji": "傘", "romaji": "kasa", "meaning_zh": "雨傘" },
+      "katakana_word": { "katakana": "カメラ", "romaji": "kamera", "meaning_zh": "相機" }
+    },
+    {
+      "row": "か行",
+      "column": "i段",
+      "hiragana": "き",
+      "katakana": "キ",
+      "romaji": "ki",
+      "hiragana_word": { "kana": "き", "kanji": "木", "romaji": "ki", "meaning_zh": "樹木" },
+      "katakana_word": { "katakana": "キッチン", "romaji": "kicchin", "meaning_zh": "廚房" }
+    },
+    {
+      "row": "か行",
+      "column": "u段",
+      "hiragana": "く",
+      "katakana": "ク",
+      "romaji": "ku",
+      "hiragana_word": { "kana": "くつ", "kanji": "靴", "romaji": "kutsu", "meaning_zh": "鞋子" },
+      "katakana_word": { "katakana": "クラス", "romaji": "kurasu", "meaning_zh": "班級" }
+    },
+    {
+      "row": "か行",
+      "column": "e段",
+      "hiragana": "け",
+      "katakana": "ケ",
+      "romaji": "ke",
+      "hiragana_word": { "kana": "けいたい", "kanji": "携帯", "romaji": "keitai", "meaning_zh": "手機" },
+      "katakana_word": { "katakana": "ケーキ", "romaji": "keeki", "meaning_zh": "蛋糕" }
+    },
+    {
+      "row": "か行",
+      "column": "o段",
+      "hiragana": "こ",
+      "katakana": "コ",
+      "romaji": "ko",
+      "hiragana_word": { "kana": "こども", "kanji": "子供", "romaji": "kodomo", "meaning_zh": "小孩" },
+      "katakana_word": { "katakana": "コーヒー", "romaji": "koohii", "meaning_zh": "咖啡" }
+    },
+    {
+      "row": "さ行",
+      "column": "a段",
+      "hiragana": "さ",
+      "katakana": "サ",
+      "romaji": "sa",
+      "hiragana_word": { "kana": "さかな", "kanji": "魚", "romaji": "sakana", "meaning_zh": "魚" },
+      "katakana_word": { "katakana": "サラダ", "romaji": "sarada", "meaning_zh": "沙拉" }
+    },
+    {
+      "row": "さ行",
+      "column": "i段",
+      "hiragana": "し",
+      "katakana": "シ",
+      "romaji": "shi",
+      "hiragana_word": { "kana": "しお", "kanji": "塩", "romaji": "shio", "meaning_zh": "鹽巴" },
+      "katakana_word": { "katakana": "シャツ", "romaji": "shatsu", "meaning_zh": "襯衫" }
+    },
+    {
+      "row": "さ行",
+      "column": "u段",
+      "hiragana": "す",
+      "katakana": "ス",
+      "romaji": "su",
+      "hiragana_word": { "kana": "すし", "kanji": "寿司", "romaji": "sushi", "meaning_zh": "壽司" },
+      "katakana_word": { "katakana": "スマホ", "romaji": "sumaho", "meaning_zh": "智慧型手機" }
+    },
+    {
+      "row": "さ行",
+      "column": "e段",
+      "hiragana": "せ",
+      "katakana": "セ",
+      "romaji": "se",
+      "hiragana_word": { "kana": "せんせい", "kanji": "先生", "romaji": "sensei", "meaning_zh": "老師" },
+      "katakana_word": { "katakana": "セーター", "romaji": "seetaa", "meaning_zh": "毛衣" }
+    },
+    {
+      "row": "さ行",
+      "column": "o段",
+      "hiragana": "そ",
+      "katakana": "ソ",
+      "romaji": "so",
+      "hiragana_word": { "kana": "そら", "kanji": "空", "romaji": "sora", "meaning_zh": "天空" },
+      "katakana_word": { "katakana": "ソファ", "romaji": "sofa", "meaning_zh": "沙發" }
+    },
+    {
+      "row": "た行",
+      "column": "a段",
+      "hiragana": "た",
+      "katakana": "タ",
+      "romaji": "ta",
+      "hiragana_word": { "kana": "たまご", "kanji": "卵", "romaji": "tamago", "meaning_zh": "雞蛋" },
+      "katakana_word": { "katakana": "タクシー", "romaji": "takushii", "meaning_zh": "計程車" }
+    },
+    {
+      "row": "た行",
+      "column": "i段",
+      "hiragana": "ち",
+      "katakana": "チ",
+      "romaji": "chi",
+      "hiragana_word": { "kana": "ちず", "kanji": "地図", "romaji": "chizu", "meaning_zh": "地圖" },
+      "katakana_word": { "katakana": "チーズ", "romaji": "chiizu", "meaning_zh": "起司" }
+    },
+    {
+      "row": "た行",
+      "column": "u段",
+      "hiragana": "つ",
+      "katakana": "ツ",
+      "romaji": "tsu",
+      "hiragana_word": { "kana": "つくえ", "kanji": "机", "romaji": "tsukue", "meaning_zh": "書桌" },
+      "katakana_word": { "katakana": "ツアー", "romaji": "tsuaa", "meaning_zh": "旅遊團" }
+    },
+    {
+      "row": "た行",
+      "column": "e段",
+      "hiragana": "て",
+      "katakana": "テ",
+      "romaji": "te",
+      "hiragana_word": { "kana": "てがみ", "kanji": "手紙", "romaji": "tegami", "meaning_zh": "信件" },
+      "katakana_word": { "katakana": "テレビ", "romaji": "terebi", "meaning_zh": "電視" }
+    },
+    {
+      "row": "た行",
+      "column": "o段",
+      "hiragana": "と",
+      "katakana": "ト",
+      "romaji": "to",
+      "hiragana_word": { "kana": "とけい", "kanji": "時計", "romaji": "tokei", "meaning_zh": "時鐘、手錶" },
+      "katakana_word": { "katakana": "トイレ", "romaji": "toire", "meaning_zh": "廁所" }
+    },
+    {
+      "row": "な行",
+      "column": "a段",
+      "hiragana": "な",
+      "katakana": "ナ",
+      "romaji": "na",
+      "hiragana_word": { "kana": "なつ", "kanji": "夏", "romaji": "natsu", "meaning_zh": "夏天" },
+      "katakana_word": { "katakana": "ナイフ", "romaji": "naifu", "meaning_zh": "刀子" }
+    },
+    {
+      "row": "な行",
+      "column": "i段",
+      "hiragana": "に",
+      "katakana": "ニ",
+      "romaji": "ni",
+      "hiragana_word": { "kana": "にく", "kanji": "肉", "romaji": "niku", "meaning_zh": "肉" },
+      "katakana_word": { "katakana": "ニュース", "romaji": "nyuusu", "meaning_zh": "新聞" }
+    },
+    {
+      "row": "な行",
+      "column": "u段",
+      "hiragana": "ぬ",
+      "katakana": "ヌ",
+      "romaji": "nu",
+      "hiragana_word": { "kana": "ぬいぐるみ", "kanji": "縫い包み", "romaji": "nuigurumi", "meaning_zh": "絨毛娃娃" },
+      "katakana_word": { "katakana": "ヌードル", "romaji": "nuudoru", "meaning_zh": "麵條" }
+    },
+    {
+      "row": "な行",
+      "column": "e段",
+      "hiragana": "ね",
+      "katakana": "ネ",
+      "romaji": "ne",
+      "hiragana_word": { "kana": "ねこ", "kanji": "猫", "romaji": "neko", "meaning_zh": "貓" },
+      "katakana_word": { "katakana": "ネクタイ", "romaji": "nekutai", "meaning_zh": "領帶" }
+    },
+    {
+      "row": "な行",
+      "column": "o段",
+      "hiragana": "の",
+      "katakana": "ノ",
+      "romaji": "no",
+      "hiragana_word": { "kana": "のみもの", "kanji": "飲み物", "romaji": "nomimono", "meaning_zh": "飲料" },
+      "katakana_word": { "katakana": "ノート", "romaji": "nooto", "meaning_zh": "筆記本" }
+    },
+    {
+      "row": "は行",
+      "column": "a段",
+      "hiragana": "は",
+      "katakana": "ハ",
+      "romaji": "ha",
+      "hiragana_word": { "kana": "はな", "kanji": "花", "romaji": "hana", "meaning_zh": "花朵" },
+      "katakana_word": { "katakana": "ハンバーガー", "romaji": "hanbaagaa", "meaning_zh": "漢堡" }
+    },
+    {
+      "row": "は行",
+      "column": "i段",
+      "hiragana": "ひ",
+      "katakana": "ヒ",
+      "romaji": "hi",
+      "hiragana_word": { "kana": "ひこうき", "kanji": "飛行機", "romaji": "hikouki", "meaning_zh": "飛機" },
+      "katakana_word": { "katakana": "ヒント", "romaji": "hinto", "meaning_zh": "提示" }
+    },
+    {
+      "row": "は行",
+      "column": "u段",
+      "hiragana": "ふ",
+      "katakana": "フ",
+      "romaji": "fu",
+      "hiragana_word": { "kana": "ふね", "kanji": "船", "romaji": "fune", "meaning_zh": "船" },
+      "katakana_word": { "katakana": "フルーツ", "romaji": "furuutsu", "meaning_zh": "水果" }
+    },
+    {
+      "row": "は行",
+      "column": "e段",
+      "hiragana": "へ",
+      "katakana": "ヘ",
+      "romaji": "he",
+      "hiragana_word": { "kana": "へや", "kanji": "部屋", "romaji": "heya", "meaning_zh": "房間" },
+      "katakana_word": { "katakana": "ヘルメット", "romaji": "herumetto", "meaning_zh": "安全帽" }
+    },
+    {
+      "row": "は行",
+      "column": "o段",
+      "hiragana": "ほ",
+      "katakana": "ホ",
+      "romaji": "ho",
+      "hiragana_word": { "kana": "ほん", "kanji": "本", "romaji": "hon", "meaning_zh": "書本" },
+      "katakana_word": { "katakana": "ホテル", "romaji": "hoteru", "meaning_zh": "飯店" }
+    },
+    {
+      "row": "ま行",
+      "column": "a段",
+      "hiragana": "ま",
+      "katakana": "マ",
+      "romaji": "ma",
+      "hiragana_word": { "kana": "まど", "kanji": "窓", "romaji": "mado", "meaning_zh": "窗戶" },
+      "katakana_word": { "katakana": "マスク", "romaji": "masuku", "meaning_zh": "口罩" }
+    },
+    {
+      "row": "ま行",
+      "column": "i段",
+      "hiragana": "み",
+      "katakana": "ミ",
+      "romaji": "mi",
+      "hiragana_word": { "kana": "みず", "kanji": "水", "romaji": "mizu", "meaning_zh": "水" },
+      "katakana_word": { "katakana": "ミルク", "romaji": "miruku", "meaning_zh": "牛奶" }
+    }
+  ]
+};
