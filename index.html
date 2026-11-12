@@ -793,7 +793,7 @@
         + '<span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
         + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '');
       // speak the word
-      if (voiceEnabled) speakWord(isKata ? (w.katakana||'') : (w.kana||''), w.romaji||'');
+      // word speech handled by caller after kana speech
     } else {
       const kana = w.kana || '';
       const kanji = (w.kanji && w.kanji !== w.kana) ? w.kanji : '';
@@ -803,7 +803,7 @@
         + (kanji ? ' <span style="color:var(--muted);">(' + kanji + ')</span>' : '')
         + ' <span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
         + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '');
-      if (voiceEnabled && kana) speakWord(kana, w.romaji||'');
+      // word speech handled by caller after kana speech
     }
   }
 
@@ -858,7 +858,18 @@
     const el = document.querySelector(`.key[data-key="${CSS.escape(currentTarget)}"]`);
     if (el) el.classList.add('target-glow');
 
-    if (voiceEnabled) speakKana(kana);
+    if (voiceEnabled) {
+      speakKana(kana);
+      const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[kana] : null;
+      if (_entry) {
+        const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+        if (_w) {
+          const _text = _w.katakana || _w.kana || '';
+          const _rom = _w.romaji || '';
+          setTimeout(() => speakWord(_text, _rom), 900);
+        }
+      }
+    }
   }
 
   function checkAnswer(pressedKey) {
@@ -944,6 +955,19 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
         soundCorrect();
         flashKey(pressedKey, 'flash-ok');
         clearExploreGlow();
+        const _kana = keyKana(exploreTarget);
+        if (voiceEnabled) {
+          speakKana(_kana);
+          const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[_kana] : null;
+          if (_entry) {
+            const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+            if (_w) {
+              const _text = _w.katakana || _w.kana || '';
+              const _rom = _w.romaji || '';
+              setTimeout(() => speakWord(_text, _rom), 900);
+            }
+          }
+        }
         setTimeout(nextExploreTarget, 700);
         return;
       } else {
