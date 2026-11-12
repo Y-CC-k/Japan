@@ -364,7 +364,7 @@
 
   <div class="display-card" id="display-card">
     <p id="big-letter">あ</p>
-    <div id="big-romaji" style="display:none;"></div>
+    <div id="big-romaji"></div>
     <div id="feedback-message" class="neutral">👋 點擊下方按鍵或直接按鍵盤試試</div>
     <div id="finger-info">左手小指</div>
     <div id="key-hint">按鍵：<span id="key-label">A</span></div>
@@ -773,7 +773,7 @@
 
   function updateRomajiHint(key) {
     if (!showRomaji) { $romajiLabel.textContent = ''; $bigRomaji.textContent = ''; document.getElementById('romaji-hint').style.display = 'none'; return; }
-    // standalone romaji line hidden per user request
+    // standalone romaji line hidden per user request; romaji shown beside the char instead
     document.getElementById('romaji-hint').style.display = 'none';
     const k = key || currentTarget || exploreTarget;
     const r = currentRomaji(k);
@@ -947,17 +947,13 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
       const match = (pressedKey === exploreTarget);
       if (match) {
         soundCorrect();
-        flashCard('flash-correct', 400);
         flashKey(pressedKey, 'flash-ok');
-        setFeedback('✅ 對了！「' + keyKana(exploreTarget) + '」', 'ok');
         clearExploreGlow();
         setTimeout(nextExploreTarget, 700);
         return;
       } else {
         soundWrong();
-        flashCard('flash-wrong', 300);
         flashKey(pressedKey, 'flash-bad');
-        setFeedback('❌ 再試一次，請找「' + keyKana(exploreTarget) + '」', 'bad');
         return;
       }
     }
