@@ -1040,6 +1040,7 @@ $finger.style.color = info.hand === 'left' ? 'var(--left)'
         document.getElementById('pai-challenge').classList.remove('active');
         btn.classList.add('active');
         challengeMode = (btn.id === 'pai-challenge');
+        document.getElementById('score-board').style.display = challengeMode ? '' : 'none';
         stopQuizTimer();
         quizActive = false;
         timeLeft = 60;
@@ -1316,6 +1317,7 @@ updateWordHint();
 
   computeAllowedKeys();
   buildKeyboard();
+  document.getElementById('score-board').style.display = 'none';
   updateScore();
   updateTimerDisplay();
   nextExploreTarget();
