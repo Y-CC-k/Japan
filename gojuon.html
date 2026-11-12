@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五十音表 - 日式鍵盤學習</title>
+<script src="data.js"></script>
+<style>
+  :root { --bg:#f0f4f8; --card:#fff; --active:#2c3e50; --muted:#7f8c8d; --accent:#3498db; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:16px; font-family:"Yu Gothic","Meiryo",sans-serif; background:var(--bg); color:var(--active); }
+  h1 { text-align:center; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .gojuon-table { width:100%; border-collapse:collapse; font-size:16px; background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+  .gojuon-table th, .gojuon-table td { border:1px solid #dfe6e9; padding:8px 4px; text-align:center; vertical-align:middle; }
+  .gojuon-table th { background:#ecf0f1; color:var(--muted); font-size:13px; }
+  .gojuon-table td .hira { font-size:22px; font-weight:700; color:var(--active); display:inline-block; }
+  .gojuon-table td .rom { font-size:11px; font-weight:700; color:var(--accent); display:inline-block; margin-left:6px; vertical-align:middle; }
+  .gojuon-table td .kata { font-size:12px; color:var(--muted); }
+  .gojuon-table td.empty { background:#f7f9fb; color:#bdc3c7; }
+  .gojuon-table td { cursor:pointer; }
+  .gojuon-table td:hover { background:#eaf3fb; }
+  #info { text-align:center; margin:12px 0; min-height:24px; font-size:16px; }
+  .back { display:inline-block; margin-bottom:12px; color:var(--accent); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 返回練習</a>
+  <h1>五十音表（母音 × 子音）</h1>
+  <div id="info">點擊假名可朗讀</div>
+  <table class="gojuon-table" id="table"></table>
+</div>
+<script>
+  const GOJUON = [
+    { row:'∅', cells:[['あ','a'],['い','i'],['う','u'],['え','e'],['お','o']] },
+    { row:'k', cells:[['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko']] },
+    { row:'s', cells:[['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so']] },
+    { row:'t', cells:[['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to']] },
+    { row:'n', cells:[['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no']] },
+    { row:'h', cells:[['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho']] },
+    { row:'m', cells:[['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo']] },
+    { row:'y', cells:[['や','ya'],null,['ゆ','yu'],null,['よ','yo']] },
+    { row:'r', cells:[['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro']] },
+    { row:'w', cells:[['わ','wa'],null,null,null,['を','wo']] },
+    { row:'n', cells:[['ん','n'],null,null,null,null] },
+  ];
+  function hiraToKata(h){ if(!h||h.length!==1) return h; const c=h.charCodeAt(0); if(c>=0x3041&&c<=0x3096) return String.fromCharCode(c+0x60); return h; }
+  const table = document.getElementById('table');
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  const th0 = document.createElement('th'); th0.textContent='子音＼母音'; hr.appendChild(th0);
+  ['a','i','u','e','o'].forEach(v=>{ const th=document.createElement('th'); th.textContent=v; hr.appendChild(th); });
+  thead.appendChild(hr); table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  GOJUON.forEach(r=>{
+    const tr = document.createElement('tr');
+    const th = document.createElement('th'); th.textContent=r.row; tr.appendChild(th);
+    r.cells.forEach(cell=>{
+      const td = document.createElement('td');
+      if(!cell){ td.className='empty'; td.textContent='—'; }
+      else {
+        const hira=cell[0], rom=cell[1], kata=hiraToKata(hira);
+        td.innerHTML = '<div><span class="hira">'+hira+'</span><span class="rom">'+rom+'</span></div><div class="kata">'+kata+'</div>';
+        td.addEventListener('click', ()=>{
+          document.getElementById('info').textContent = hira + '  ' + rom + '  ' + kata;
+          if (window.speechSynthesis) {
+            try {
+              window.speechSynthesis.cancel();
+              const ja = speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('ja'));
+              const u = new SpeechSynthesisUtterance(ja?hira:rom);
+              u.lang = ja?'ja-JP':'en-US';
+              if(ja) u.voice=ja;
+              u.rate=0.9; speechSynthesis.speak(u);
+            } catch(e){}
+          }
+        });
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+</script>
+</body>
+</html>
