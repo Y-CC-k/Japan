@@ -633,6 +633,21 @@
     setTimeout(() => speakKana('あ'), 200);
   }
 
+  function speakWord(text, romaji) {
+    if (!voiceEnabled || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const jaVoice = voicesReady ? availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja')) : null;
+      const u = new SpeechSynthesisUtterance(jaVoice ? text : (romaji || text));
+      u.lang = jaVoice ? 'ja-JP' : 'en-US';
+      u.rate = 0.9;
+      u.volume = 1;
+      if (jaVoice) u.voice = jaVoice;
+      currentUtterance = u;
+      window.speechSynthesis.speak(u);
+    } catch (err) {}
+  }
+
   function speakKana(kana) {
     if (!voiceEnabled || !window.speechSynthesis) return;
     try {
@@ -773,17 +788,27 @@
     if (!entry) { $wordHint.textContent = ''; return; }
     const isKata = (scriptMode === 'kata') || (scriptMode === 'mixed' && currentShowKata);
     const w = isKata ? entry.katakana_word : entry.hiragana_word;
-    if (!w) { $wordHint.textContent = ''; return; }
-    let text = '';
+    if (!w) { $wordHint.innerHTML = ''; return; }
     if (w.katakana) {
-      text = w.katakana + ' [' + (w.romaji||'') + '] — ' + (w.meaning_zh||'');
+      const kana = w.katakana;
+      const rom = w.romaji || '';
+      const meaning = w.meaning_zh || '';
+      $wordHint.innerHTML = '<span style="font-weight:700;">' + kana + '</span> '
+        + '<span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
+        + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '');
+      // speak the word
+      if (voiceEnabled) speakWord(isKata ? (w.katakana||'') : (w.kana||''), w.romaji||'');
     } else {
-      if (w.kana) text += w.kana + ' ';
-      if (w.kanji && w.kanji !== w.kana) text += '(' + w.kanji + ') ';
-      if (w.romaji) text += '[' + w.romaji + '] ';
-      if (w.meaning_zh) text += '— ' + w.meaning_zh;
+      const kana = w.kana || '';
+      const kanji = (w.kanji && w.kanji !== w.kana) ? w.kanji : '';
+      const rom = w.romaji || '';
+      const meaning = w.meaning_zh || '';
+      $wordHint.innerHTML = '<span style="font-weight:700;">' + kana + '</span>'
+        + (kanji ? ' <span style="color:var(--muted);">(' + kanji + ')</span>' : '')
+        + ' <span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
+        + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '');
+      if (voiceEnabled && kana) speakWord(kana, w.romaji||'');
     }
-    $wordHint.textContent = text.trim();
   }
 
   function setFeedback(msg, cls) {
