@@ -323,6 +323,18 @@
         <button type="button" class="mode-btn" id="btn-romaji-off">隱藏</button>
       </div>
 
+      <div class="setting-group type-group">
+        <label style="font-size:16px;">練習類型：</label>
+        <button type="button" class="mode-btn active" data-type="kana" id="type-kana">單假名</button>
+        <button type="button" class="mode-btn" data-type="word" id="type-word">單字</button>
+        <button type="button" class="mode-btn" data-type="listen" id="type-listen">聽力</button>
+      </div>
+
+      <div class="setting-group ext-group">
+        <label style="font-size:16px;">擴充：</label>
+        <button type="button" class="mode-btn" id="btn-ext-toggle">濁音/拗音 OFF</button>
+      </div>
+
       <div class="setting-group order-group">
         <label style="font-size:16px;">練習順序：</label>
         <button type="button" class="mode-btn active" id="btn-order-rand">隨機</button>
@@ -365,6 +377,7 @@
     <p id="big-letter">あ</p>
     <div id="big-romaji"></div>
     <div id="word-hint" style="font-size:17px;color:var(--text);min-height:18px;margin-top:6px;"></div>
+    <div id="typed-display" style="font-size:20px;color:var(--accent);min-height:24px;margin-top:4px;font-weight:700;"></div>
     <div id="feedback-message" class="neutral">👋 點擊下方按鍵或直接按鍵盤試試</div>
     <div id="finger-info">左手小指</div>
     <div id="key-hint">按鍵：<span id="key-label">A</span></div>
@@ -473,12 +486,37 @@
     ]
   ];
 
+  // Extended kana (dakuten/handakuten/yoon) mapped to base key for position practice
+  const EXTENDED_KANA = [
+    // dakuten
+    {key:'Q',kana:'だ',romaji:'da'},{key:'W',kana:'ぢ',romaji:'di'},{key:'E',kana:'づ',romaji:'du'},{key:'R',kana:'で',romaji:'de'},{key:'T',kana:'ど',romaji:'do'},
+    {key:'Q',kana:'ざ',romaji:'za'},{key:'W',kana:'じ',romaji:'ji'},{key:'E',kana:'ず',romaji:'zu'},{key:'R',kana:'ぜ',romaji:'ze'},{key:'T',kana:'ぞ',romaji:'zo'},
+    {key:'Q',kana:'が',romaji:'ga'},{key:'W',kana:'ぎ',romaji:'gi'},{key:'E',kana:'ぐ',romaji:'gu'},{key:'R',kana:'げ',romaji:'ge'},{key:'T',kana:'ご',romaji:'go'},
+    {key:'A',kana:'ば',romaji:'ba'},{key:'S',kana:'び',romaji:'bi'},{key:'D',kana:'ぶ',romaji:'bu'},{key:'F',kana:'べ',romaji:'be'},{key:'G',kana:'ぼ',romaji:'bo'},
+    {key:'A',kana:'ぱ',romaji:'pa'},{key:'S',kana:'ぴ',romaji:'pi'},{key:'D',kana:'ぷ',romaji:'pu'},{key:'F',kana:'ぺ',romaji:'pe'},{key:'G',kana:'ぽ',romaji:'po'},
+    // yoon (mapped to base consonant key)
+    {key:'T',kana:'きゃ',romaji:'kya'},{key:'T',kana:'きゅ',romaji:'kyu'},{key:'T',kana:'きょ',romaji:'kyo'},
+    {key:'R',kana:'しゃ',romaji:'sha'},{key:'R',kana:'しゅ',romaji:'shu'},{key:'R',kana:'しょ',romaji:'sho'},
+    {key:'E',kana:'ちゃ',romaji:'cha'},{key:'E',kana:'ちゅ',romaji:'chu'},{key:'E',kana:'ちょ',romaji:'cho'},
+    {key:'U',kana:'にゃ',romaji:'nya'},{key:'U',kana:'にゅ',romaji:'nyu'},{key:'U',kana:'にょ',romaji:'nyo'},
+    {key:'H',kana:'ひゃ',romaji:'hya'},{key:'H',kana:'ひゅ',romaji:'hyu'},{key:'H',kana:'ひょ',romaji:'hyo'},
+    {key:'J',kana:'みゃ',romaji:'mya'},{key:'J',kana:'みゅ',romaji:'myu'},{key:'J',kana:'みょ',romaji:'myo'},
+    {key:'L',kana:'りゃ',romaji:'rya'},{key:'L',kana:'りゅ',romaji:'ryu'},{key:'L',kana:'りょ',romaji:'ryo'},
+  ];
   let scriptMode = 'hira'; // hira / kata / mixed
   let currentShowKata = false;
   let keyLabelMode = 'kana'; // kana / romaji
   let showRomaji = true;
   let sequentialOrder = false;
   let seqIndex = 0;
+  let practiceType = 'kana'; // kana / word / listen
+  let includeExtended = false;
+  let typedBuffer = '';
+  let currentWord = null;
+  let currentKanaStr = '';
+  let currentRomajiStr = '';
+  let exploreKanaStr = '';
+  let exploreRomajiStr = '';
   let currentRange = 'all';
   let customStart = 'A';
   let customEnd = 'Z';
@@ -492,15 +530,20 @@
   const $big = document.getElementById('big-letter');
   const $bigRomaji = document.getElementById('big-romaji');
   const $wordHint = document.getElementById('word-hint');
+  const $typedDisplay = document.getElementById('typed-display');
 
   // Build kana -> data entry map from JA_DATA
   const JA_MAP = {};
+  const WORD_LIST = [];
   (function buildJaMap() {
     try {
       if (window.JA_DATA && Array.isArray(window.JA_DATA.seion)) {
         window.JA_DATA.seion.forEach(e => {
           if (e.hiragana) JA_MAP[e.hiragana] = e;
           if (e.katakana) JA_MAP[e.katakana] = e;
+          if (e.hiragana_word && e.hiragana_word.kana) {
+            WORD_LIST.push({ kana: e.hiragana_word.kana, romaji: (e.hiragana_word.romaji||'').toLowerCase(), meaning: e.hiragana_word.meaning_zh||'', kanji: e.hiragana_word.kanji||'' });
+          }
         });
       }
     } catch (err) {}
@@ -777,7 +820,10 @@
   function updateWordHint(key) {
     if (!$wordHint) return;
     const k = key || currentTarget || exploreTarget;
-    const kana = k ? keyKana(k) : '';
+    let kana = '';
+    if (key === currentTarget && currentKanaStr) kana = currentKanaStr;
+    else if (key === exploreTarget && exploreKanaStr) kana = exploreKanaStr;
+    else kana = (k ? keyKana(k) : '');
     const entry = kana ? JA_MAP[kana] : null;
     if (!entry) { $wordHint.textContent = ''; return; }
     const isKata = (scriptMode === 'kata') || (scriptMode === 'mixed' && currentShowKata);
@@ -838,26 +884,134 @@
     document.querySelectorAll('.key.explore-glow').forEach(el => el.classList.remove('explore-glow'));
   }
 
+  function pickVariant(key) {
+    const baseHira = KANA_MAP[key];
+    if (!baseHira) return { kana: key, romaji: '' };
+    // extended?
+    if (includeExtended) {
+      const cands = EXTENDED_KANA.filter(e => e.key === key);
+      if (cands.length && Math.random() < 0.45) {
+        const e = cands[Math.floor(Math.random()*cands.length)];
+        const kana = (scriptMode === 'kata') ? hiraToKata(e.kana) : e.kana;
+        return { kana: kana, romaji: e.romaji };
+      }
+    }
+    const hira = baseHira;
+    const kana = (scriptMode === 'kata') ? hiraToKata(hira) : hira;
+    return { kana: kana, romaji: ROMAJI_MAP[hira] || '' };
+  }
+
+  function srsPick(keys) {
+    // load stats
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    // score each key: higher = weaker
+    const scored = keys.map(k => {
+      const s = stats[k] || {c:0,w:0};
+      const score = (s.w+1)/(s.c+s.w+2);
+      return {k, score};
+    }).sort((a,b)=>b.score-a.score);
+    const top = scored.slice(0, Math.max(1, Math.ceil(scored.length/2)));
+    return top[Math.floor(Math.random()*top.length)].k;
+  }
+
+  function nextWord() {
+    if (WORD_LIST.length === 0) { setFeedback('單字資料載入失敗', 'bad'); return; }
+    currentWord = WORD_LIST[Math.floor(Math.random()*WORD_LIST.length)];
+    typedBuffer = '';
+    $big.textContent = currentWord.kana;
+    $wordHint.textContent = '';
+    updateTypedDisplay();
+    setFeedback('⌨️ 請輸入羅馬字，按 Enter 送出', 'neutral');
+    $finger.textContent = '';
+    $keyLabel.textContent = '';
+    $bigRomaji.textContent = '';
+    clearGlow(); clearExploreGlow();
+    if (voiceEnabled) speakWord(currentWord.kana, currentWord.romaji);
+  }
+
+  function submitWord() {
+    if (!currentWord) return;
+    const ans = typedBuffer.trim().toLowerCase();
+    if (ans === currentWord.romaji) {
+      scoreCorrect++; streak++; updateScore();
+      soundCorrect();
+      setFeedback('✅ 正確！' + currentWord.kana + ' = ' + currentWord.romaji, 'ok');
+      flashCard('flash-correct', 500);
+      setTimeout(nextWord, 900);
+    } else {
+      scoreWrong++; streak=0; updateScore();
+      soundWrong();
+      setFeedback('❌ 錯誤！正確：' + currentWord.romaji, 'bad');
+      flashCard('flash-wrong', 500);
+    }
+    typedBuffer = '';
+    updateTypedDisplay();
+  }
+
+  function updateTypedDisplay() {
+    if (!$typedDisplay) return;
+    if (practiceType !== 'word') { $typedDisplay.textContent = ''; return; }
+    $typedDisplay.textContent = typedBuffer + '▋';
+  }
+
+  function updateSrs(key, correct) {
+    if (!key) return;
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    if (!stats[key]) stats[key] = {c:0,w:0};
+    if (correct) stats[key].c++; else stats[key].w++;
+    try { localStorage.setItem('ja_stats', JSON.stringify(stats)); } catch(e){}
+  }
+
+  function updateBigRomajiVisibility() {
+    if (!$bigRomaji) return;
+    $bigRomaji.style.display = (practiceType === 'listen' || practiceType === 'word') ? 'none' : '';
+  }
+
   function nextQuestion() {
+    if (practiceType === 'word') { nextWord(); return; }
     const pool = [...allowedKeys];
     if (pool.length === 0) return;
-    currentTarget = pool[Math.floor(Math.random() * pool.length)];
+    if (practiceType === 'listen') {
+      // same as kana but hide display handled later
+    }
+    if (sequentialOrder) {
+      const seq = gojuonKeys();
+      if (seq.length === 0) return;
+      if (seqIndex >= seq.length) seqIndex = 0;
+      currentTarget = seq[seqIndex];
+      seqIndex++;
+    } else {
+      currentTarget = srsPick(pool);
+    }
     if (scriptMode === 'mixed') currentShowKata = Math.random() < 0.5;
+    const v = pickVariant(currentTarget);
+    currentKanaStr = v.kana;
+    currentRomajiStr = v.romaji;
 
-    const kana = keyKana(currentTarget);
+    const kana = currentKanaStr;
     $big.textContent = kana;
+    // listening mode: hide the letter
+    if (practiceType === 'listen') { $big.textContent = '🔊'; }
     setFeedback('🎯 請按：' + kana + '（鍵盤會發亮）', 'neutral');
     $finger.textContent = getFingerInfo(currentTarget).finger + '（提示）';
     $keyLabel.textContent = currentTarget;
-    updateRomajiHint(currentTarget);
+    // override romaji hint with current variant romaji
+    if (showRomaji) {
+      $bigRomaji.textContent = currentRomajiStr;
+      $romajiLabel.textContent = currentRomajiStr;
+    }
     updateWordHint(currentTarget);
+    // play sound in listen mode
+    if (practiceType === 'listen' && voiceEnabled) { speakKana(kana); }
 
     clearGlow();
     const el = document.querySelector(`.key[data-key="${CSS.escape(currentTarget)}"]`);
     if (el) el.classList.add('target-glow');
 
     if (voiceEnabled) {
-      speakKana(kana);
+      speakWord(kana, currentRomajiStr);
       const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[kana] : null;
       if (_entry) {
         const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
@@ -881,6 +1035,7 @@
     }
 
     if (pressedKey === currentTarget) {
+      updateSrs(currentTarget, true);
       scoreCorrect++;
       streak++;
       updateScore();
@@ -895,6 +1050,7 @@
     updateWordHint(pressedKey);
 setTimeout(nextQuestion, 900);
     } else {
+      updateSrs(currentTarget, false);
       scoreWrong++;
       streak = 0;
       updateScore();
@@ -911,6 +1067,7 @@ setTimeout(nextQuestion, 900);
   let exploreTarget = null;
 
   function nextExploreTarget() {
+    if (practiceType === 'word') { nextWord(); return; }
     let pool;
     if (sequentialOrder) {
       const seq = gojuonKeys();
@@ -925,13 +1082,20 @@ setTimeout(nextQuestion, 900);
     }
     if (scriptMode === 'mixed') currentShowKata = Math.random() < 0.5;
 
-    const kana = keyKana(exploreTarget);
-    $big.textContent = kana;
+    const v = pickVariant(exploreTarget);
+    exploreKanaStr = v.kana;
+    exploreRomajiStr = v.romaji;
+    const kana = exploreKanaStr;
+    if (practiceType === 'listen') { $big.textContent = '🔊'; } else { $big.textContent = kana; }
     setFeedback('🔍 請按鍵盤：' + kana, 'neutral');
     $finger.textContent = getFingerInfo(exploreTarget).finger;
     $keyLabel.textContent = exploreTarget;
-    updateRomajiHint(exploreTarget);
+    if (showRomaji) {
+      $bigRomaji.textContent = exploreRomajiStr;
+      $romajiLabel.textContent = exploreRomajiStr;
+    }
     updateWordHint(exploreTarget);
+    if (practiceType === 'listen' && voiceEnabled) { speakWord(kana, exploreRomajiStr); }
 $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left)'
                         : getFingerInfo(exploreTarget).hand === 'right' ? 'var(--right)' : 'var(--thumb)';
 
@@ -939,7 +1103,18 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
     const el = document.querySelector(`.key[data-key="${CSS.escape(exploreTarget)}"]`);
     if (el) el.classList.add('explore-glow');
 
-    if (voiceEnabled) speakKana(kana);
+    if (voiceEnabled && practiceType !== 'listen') {
+      speakWord(kana, exploreRomajiStr);
+      const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[kana] : null;
+      if (_entry) {
+        const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+        if (_w) {
+          const _text = _w.katakana || _w.kana || '';
+          const _rom = _w.romaji || '';
+          setTimeout(() => speakWord(_text, _rom), 900);
+        }
+      }
+    }
   }
 
   function exploreKey(pressedKey) {
@@ -950,6 +1125,7 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
     if (exploreTarget) {
       const match = (pressedKey === exploreTarget);
       if (match) {
+        updateSrs(exploreTarget, true);
         soundCorrect();
         flashKey(pressedKey, 'flash-ok');
         clearExploreGlow();
@@ -1046,6 +1222,27 @@ $finger.style.color = info.hand === 'left' ? 'var(--left)'
   document.addEventListener('keydown', (e) => {
     if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
     const key = keyFromEvent(e);
+
+    if (practiceType === 'word') {
+      if (key === 'Enter') {
+        e.preventDefault();
+        submitWord();
+        return;
+      }
+      if (key === 'Backspace') {
+        typedBuffer = typedBuffer.slice(0, -1);
+        updateTypedDisplay();
+        return;
+      }
+      if (/^[A-Z]$/.test(key)) {
+        typedBuffer += key.toLowerCase();
+        updateTypedDisplay();
+        highlightKey(key);
+        return;
+      }
+      return;
+    }
+
     activateKey(key);
     if (challengeMode && !quizActive && (e.code === 'Space' || e.key === ' ')) {
       e.preventDefault();
@@ -1146,6 +1343,26 @@ updateWordHint();
     document.getElementById('btn-order-rand').classList.remove('active');
     sequentialOrder = true;
     seqIndex = 0;
+  });
+
+  document.querySelectorAll('.type-group .mode-btn[data-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.type-group .mode-btn[data-type]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      practiceType = btn.dataset.type;
+      // reset
+      typedBuffer = '';
+      updateBigRomajiVisibility();
+      if (challengeMode) { currentTarget = null; nextQuestion(); }
+      else { exploreTarget = null; nextExploreTarget(); }
+    });
+  });
+
+  document.getElementById('btn-ext-toggle').addEventListener('click', () => {
+    includeExtended = !includeExtended;
+    const btn = document.getElementById('btn-ext-toggle');
+    btn.textContent = includeExtended ? '濁音/拗音 ON' : '濁音/拗音 OFF';
+    btn.classList.toggle('active', includeExtended);
   });
 
   $rangeSelect.addEventListener('change', () => {
@@ -1336,6 +1553,7 @@ updateWordHint();
   computeAllowedKeys();
   buildKeyboard();
   document.getElementById('score-board').style.display = 'none';
+  updateBigRomajiVisibility();
   updateScore();
   updateTimerDisplay();
   nextExploreTarget();
