@@ -252,6 +252,9 @@
   button.warn { background: #e67e22; box-shadow: 0 3px 0 #d35400; }
   button.ok-btn { background: var(--correct); box-shadow: 0 3px 0 #1e8449; }
 
+  body.dark { --bg:#1a1a2e; --card:#16213e; --text:#eaeaea; --muted:#a0a0b0; --key-bg:#2a2a4a; --key-shadow:#0f0f23; --active:#eaeaea; --accent:#5dade2; --correct:#2ecc71; --wrong:#e74c3c; }
+  body.dark { background: var(--bg); color: var(--text); }
+
   .footer-note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 20px; }
 
   .gojuon-card {
@@ -334,6 +337,26 @@
       <div class="setting-group ext-group">
         <label style="font-size:16px;">擴充：</label>
         <button type="button" class="mode-btn" id="btn-ext-toggle">濁音/拗音 OFF</button>
+      </div>
+
+      <div class="setting-group weak-group">
+        <label style="font-size:16px;">弱點：</label>
+        <button type="button" class="mode-btn" id="btn-weak-toggle">複習 OFF</button>
+      </div>
+
+      <div class="setting-group theme-group">
+        <label style="font-size:16px;">主題：</label>
+        <button type="button" class="mode-btn" id="btn-dark-toggle">深色 OFF</button>
+      </div>
+
+      <div class="setting-group font-group">
+        <label style="font-size:16px;">字體：</label>
+        <select id="font-size-select" style="font-size:14px; padding:2px 6px;">
+          <option value="14">小</option>
+          <option value="16" selected>中</option>
+          <option value="18">大</option>
+          <option value="20">特大</option>
+        </select>
       </div>
 
       <div class="setting-group jlpt-group">
@@ -534,6 +557,8 @@
   let seqIndex = 0;
   let practiceType = 'kana'; // kana / word / listen
   let includeExtended = false;
+  let weakReview = false;
+  let darkMode = false;
   let jlptLevel = 'N5';
   let speechRate = 1.0;
   let typedBuffer = '';
@@ -1033,6 +1058,14 @@
     return { kana: kana, romaji: ROMAJI_MAP[hira] || '' };
   }
 
+  function weakKeys(keys) {
+    if (!weakReview) return keys;
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    const w = keys.filter(k => (stats[k] && stats[k].w > 0));
+    return w.length ? w : keys;
+  }
+
   function srsPick(keys) {
     // load stats
     let stats = {};
@@ -1103,7 +1136,7 @@
 
   function nextQuestion() {
     if (practiceType === 'word') { nextWord(); return; }
-    const pool = [...allowedKeys];
+    const pool = weakKeys([...allowedKeys]);
     if (pool.length === 0) return;
     if (practiceType === 'listen') {
       // same as kana but hide display handled later
@@ -1210,7 +1243,7 @@ setTimeout(nextQuestion, 4000);
       exploreTarget = seq[seqIndex];
       seqIndex++;
     } else {
-      pool = [...allowedKeys];
+      pool = weakKeys([...allowedKeys]);
       if (pool.length === 0) return;
       exploreTarget = pool[Math.floor(Math.random() * pool.length)];
     }
@@ -1503,6 +1536,27 @@ updateWordHint();
     btn.classList.toggle('active', includeExtended);
   });
 
+  document.getElementById('btn-weak-toggle').addEventListener('click', () => {
+    weakReview = !weakReview;
+    const btn = document.getElementById('btn-weak-toggle');
+    btn.textContent = weakReview ? '複習 ON' : '複習 OFF';
+    btn.classList.toggle('active', weakReview);
+  });
+
+  document.getElementById('btn-dark-toggle').addEventListener('click', () => {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark', darkMode);
+    const btn = document.getElementById('btn-dark-toggle');
+    btn.textContent = darkMode ? '深色 ON' : '深色 OFF';
+    btn.classList.toggle('active', darkMode);
+    try { localStorage.setItem('ja_dark', darkMode ? '1' : '0'); } catch(e){}
+  });
+
+  document.getElementById('font-size-select').addEventListener('change', (e) => {
+    document.documentElement.style.fontSize = e.target.value + 'px';
+    try { localStorage.setItem('ja_fontsize', e.target.value); } catch(e){}
+  });
+
   document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(b => b.classList.remove('active'));
@@ -1717,6 +1771,12 @@ updateWordHint();
     body.appendChild(table);
   }
 
+  // load persisted prefs
+  try {
+    if (localStorage.getItem('ja_dark') === '1') { darkMode = true; document.body.classList.add('dark'); const b = document.getElementById('btn-dark-toggle'); if (b) { b.textContent = '深色 ON'; b.classList.add('active'); } }
+    const fs = localStorage.getItem('ja_fontsize');
+    if (fs) { document.documentElement.style.fontSize = fs + 'px'; const s = document.getElementById('font-size-select'); if (s) s.value = fs; }
+  } catch(e) {}
   computeAllowedKeys();
   buildKeyboard();
   rebuildWordList();
