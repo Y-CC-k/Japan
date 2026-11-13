@@ -1394,8 +1394,24 @@ updateWordHint();
 
   $btnEnable.addEventListener('click', initVoice);
   $btnSpeak.addEventListener('click', () => {
-    if (challengeMode && currentTarget) speakKana(keyKana(currentTarget));
-    else if ($keyLabel.textContent) speakKana(KANA_MAP[$keyLabel.textContent] || $keyLabel.textContent);
+    let kana = '';
+    if (challengeMode && currentTarget) kana = (practiceType==='kana'||practiceType==='listen') ? (currentKanaStr || keyKana(currentTarget)) : '';
+    else if ($keyLabel.textContent) kana = KANA_MAP[$keyLabel.textContent] || $keyLabel.textContent;
+    if (practiceType === 'word' && currentWord) {
+      speakWord(currentWord.kana, currentWord.romaji);
+      return;
+    }
+    if (kana) speakKana(kana);
+    // also speak example word if available
+    const entry = (typeof JA_MAP !== 'undefined' && kana) ? JA_MAP[kana] : null;
+    if (entry) {
+      const w = (scriptMode === 'kata') ? entry.katakana_word : entry.hiragana_word;
+      if (w) {
+        const txt = w.katakana || w.kana || '';
+        const rom = w.romaji || '';
+        setTimeout(() => speakWord(txt, rom), 900);
+      }
+    }
   });
   $btnNextMin.addEventListener('click', () => {
     if (!challengeMode) return;
