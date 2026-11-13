@@ -1025,6 +1025,7 @@
         document.getElementById('pai-challenge').classList.remove('active');
         btn.classList.add('active');
         challengeMode = (btn.id === 'pai-challenge');
+        document.getElementById('score-board').style.display = challengeMode ? '' : 'none';
         stopQuizTimer();
         quizActive = false;
         timeLeft = 60;
@@ -1224,6 +1225,7 @@
   /* ===== 初始化 ===== */
   computeAllowedLetters();
   buildKeyboard();
+  document.getElementById('score-board').style.display = 'none';
   updateScore();
   updateTimerDisplay();
   if (practiceTypeEn === 'word') nextWordEn(); else nextExploreTarget();
