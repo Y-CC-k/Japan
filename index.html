@@ -108,7 +108,7 @@
   .display-card {
     background: var(--card);
     border-radius: 16px;
-    padding: 6px 15px 10px;
+    padding: 16px 15px 10px;
     text-align: center;
     box-shadow: 0 6px 18px rgba(0,0,0,0.07);
     margin-bottom: 12px;
@@ -120,7 +120,7 @@
   @keyframes popIn { 0% { transform: scale(0.96); } 60% { transform: scale(1.02); } 100% { transform: scale(1); } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
-  #big-letter { font-size: 120px; font-weight: 900; line-height: 1; color: var(--active); margin: -8px 0 0; display: inline-block; vertical-align: middle; }
+  #big-letter { font-size: 120px; font-weight: 900; line-height: 1; color: var(--active); margin: 0; display: inline-block; vertical-align: middle; }
   #big-romaji { font-size: 36px; font-weight: 700; color: var(--accent); display: inline-block; vertical-align: middle; margin-left: 16px; min-height: 36px; }
   #feedback-message { font-size: 18px; font-weight: 800; margin: 2px 0 4px; min-height: 24px; }
   #feedback-message.ok  { color: var(--correct); }
@@ -939,7 +939,7 @@
       soundCorrect();
       setFeedback('✅ 正確！' + currentWord.kana + ' = ' + currentWord.romaji, 'ok');
       flashCard('flash-correct', 500);
-      setTimeout(nextWord, 1500);
+      setTimeout(nextWord, 3000);
     } else {
       scoreWrong++; streak=0; updateScore();
       soundWrong();
@@ -1049,7 +1049,7 @@
       $keyLabel.textContent = pressedKey;
       updateRomajiHint(pressedKey);
     updateWordHint(pressedKey);
-setTimeout(nextQuestion, 1500);
+setTimeout(nextQuestion, 3000);
     } else {
       updateSrs(currentTarget, false);
       scoreWrong++;
@@ -1143,7 +1143,7 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
             }
           }
         }
-        setTimeout(nextExploreTarget, 1200);
+        setTimeout(nextExploreTarget, 2000);
         return;
       } else {
         soundWrong();
