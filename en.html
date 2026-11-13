@@ -340,6 +340,7 @@
     select, input[type="text"] { font-size: 14px; }
   }
 </style>
+<script src="en_data.js"></script>
 </head>
 <body>
 
@@ -363,6 +364,12 @@
         <button type="button" class="mode-btn active" data-case="upper" id="case-upper">🔤 大寫</button>
         <button type="button" class="mode-btn" data-case="lower" id="case-lower">🔡 小寫</button>
         <button type="button" class="mode-btn" data-case="mixed">🔤 混合</button>
+      </div>
+
+      <div class="setting-group type-group">
+        <label style="font-size:16px;">練習類型：</label>
+        <button type="button" class="mode-btn active" data-type="letter" id="type-letter">單字母</button>
+        <button type="button" class="mode-btn" data-type="word" id="type-word">單字</button>
       </div>
 
       <div class="setting-group range-group" style="display:none;">
@@ -400,6 +407,8 @@
 
   <div class="display-card" id="display-card">
     <p id="big-letter">A</p>
+    <div id="word-display" style="font-size:18px;color:var(--text);min-height:24px;margin-top:6px;"></div>
+    <div id="typed-display-en" style="font-size:20px;color:var(--accent);min-height:24px;margin-top:4px;font-weight:700;"></div>
     <div id="feedback-message" class="neutral">👋 點擊下方按鍵或直接按鍵盤試試</div>
     <div id="finger-info">左手小指</div>
     <div id="key-hint">按鍵：<span id="key-label">A</span></div>
@@ -496,6 +505,9 @@
   let customEnd = 'Z';
   let allowedLetters = new Set();
   let challengeMode = false;
+  let practiceTypeEn = 'letter'; // letter / word
+  let typedBufferEn = '';
+  let currentWordEn = null;
   let currentTarget = null;        // 挑戰模式：目標字母
   let scoreCorrect = 0;
   let scoreWrong = 0;
@@ -948,7 +960,18 @@
 
   document.addEventListener('keydown', (e) => {
     if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
-    
+
+    if (practiceTypeEn === 'word') {
+      if (e.key === 'Enter') { e.preventDefault(); submitWordEn(); return; }
+      if (e.key === 'Backspace') { typedBufferEn = typedBufferEn.slice(0,-1); const td = document.getElementById('typed-display-en'); if (td) td.textContent = typedBufferEn + '▋'; return; }
+      if (/^[a-zA-Z]$/.test(e.key)) {
+        typedBufferEn += e.key.toLowerCase();
+        const td = document.getElementById('typed-display-en'); if (td) td.textContent = typedBufferEn + '▋';
+        return;
+      }
+      return;
+    }
+
     // 決定使用哪個按鍵值：區分大小寫時用 e.key，否則用實體位置 e.code
     let key;
     if (caseSensitive) {
@@ -971,6 +994,14 @@
 
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.type !== undefined) {
+        document.querySelectorAll('.type-group .mode-btn[data-type]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        practiceTypeEn = btn.dataset.type;
+        if (practiceTypeEn === 'word') { nextWordEn(); }
+        else { $big.textContent = displayChar('A'); nextExploreTarget(); }
+        return;
+      }
       if (btn.id.startsWith('pai-')) {
         document.getElementById('pai-explore').classList.remove('active');
         document.getElementById('pai-challenge').classList.remove('active');
@@ -1126,12 +1157,47 @@
     $timerDisplay.style.color = timeLeft <= 10 ? '#c0392b' : '#e74c3c';
   }
 
+  /* ===== 單字練習 ===== */
+  const EN_WORDS = (window.EN_DATA || []).map(w => ({ kana: w.word, romaji: w.word.toLowerCase(), meaning: w.meaning || '', sentence: w.sentence || '' }));
+
+  function nextWordEn() {
+    if (EN_WORDS.length === 0) { setFeedback('單字資料載入失敗', 'bad'); return; }
+    currentWordEn = EN_WORDS[Math.floor(Math.random()*EN_WORDS.length)];
+    typedBufferEn = '';
+    $big.textContent = currentWordEn.kana;
+    const wd = document.getElementById('word-display');
+    if (wd) wd.textContent = currentWordEn.meaning + (currentWordEn.sentence ? '  ' + currentWordEn.sentence : '');
+    const td = document.getElementById('typed-display-en');
+    if (td) td.textContent = '';
+    setFeedback('⌨️ 請輸入單字，按 Enter 送出', 'neutral');
+  }
+
+  function submitWordEn() {
+    if (!currentWordEn) return;
+    const ans = typedBufferEn.trim().toLowerCase();
+    if (ans === currentWordEn.romaji) {
+      scoreCorrect++; streak++; updateScore();
+      soundCorrect();
+      setFeedback('✅ 正確！', 'ok');
+      flashCard('flash-correct', 500);
+      setTimeout(nextWordEn, 1200);
+    } else {
+      scoreWrong++; streak = 0; updateScore();
+      soundWrong();
+      setFeedback('❌ 錯誤！正確：' + currentWordEn.romaji, 'bad');
+      flashCard('flash-wrong', 500);
+    }
+    typedBufferEn = '';
+    const td = document.getElementById('typed-display-en');
+    if (td) td.textContent = '';
+  }
+
   /* ===== 初始化 ===== */
   computeAllowedLetters();
   buildKeyboard();
   updateScore();
   updateTimerDisplay();
-  nextExploreTarget();
+  if (practiceTypeEn === 'word') nextWordEn(); else nextExploreTarget();
 </script>
 
 </body>
