@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日式鍵盤學習</title>
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --left: #a7c7e7;
+    --right: #f5b7b1;
+    --thumb: #a9dfbf;
+    --active: #2c3e50;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+    --key-bg: #ecf0f1;
+    --key-shadow: #bdc3c7;
+    --accent: #3498db;
+    --correct: #27ae60;
+    --wrong: #e74c3c;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Yu Gothic", "Meiryo", "Microsoft JhengHei", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .container { max-width: 1700px; margin: 0 auto; padding: 8px 8px 24px; }
+
+  header { text-align: center; padding: 4px 0 6px; }
+  header h1 { margin: 0; font-size: 30px; color: var(--active); }
+
+  .settings-card {
+    background: var(--card);
+    border-radius: 6px;
+    padding: 2px 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    margin-bottom: 4px;
+  }
+  .settings-card h3 {
+    margin: 0 0 2px;
+    font-size: 18px;
+    color: var(--active);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .settings-flex {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+  }
+  .settings-flex + .settings-flex { margin-top: 8px; }
+
+  .setting-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .setting-group label {
+    font-size: 12px;
+    color: var(--active);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .mode-btn {
+    padding: 1px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1.5px solid #dfe6e9;
+    border-radius: 5px;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+  .mode-btn.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(52,152,219,0.35);
+  }
+  .mode-btn:hover:not(.active) { border-color: var(--muted); color: var(--active); }
+
+  select, input[type="text"] {
+    padding: 1px 4px;
+    font-size: 12px;
+    border: 1.5px solid #dfe6e9;
+    border-radius: 5px;
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+  }
+  select:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  input[type="text"] { width: 28px; text-align: center; }
+  .range-hint { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  #pai-explore, #pai-challenge { font-size: 16px; padding: 2px 12px; }
+  .script-group .mode-btn { font-size: 15px; padding: 2px 14px; }
+
+  .display-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px 15px 10px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+    border: 4px solid transparent;
+  }
+  .display-card.flash-correct { border-color: var(--correct); animation: popIn 0.3s ease; }
+  .display-card.flash-wrong   { border-color: var(--wrong); animation: shake 0.3s ease; }
+
+  @keyframes popIn { 0% { transform: scale(0.96); } 60% { transform: scale(1.02); } 100% { transform: scale(1); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+  #big-letter { font-size: 120px; font-weight: 900; line-height: 1; color: var(--active); margin: 0; display: inline-block; vertical-align: middle; }
+  #big-romaji { font-size: 36px; font-weight: 700; color: var(--accent); display: inline-block; vertical-align: middle; margin-left: 16px; min-height: 36px; }
+  #feedback-message { font-size: 18px; font-weight: 800; margin: 2px 0 4px; min-height: 24px; }
+  #feedback-message.ok  { color: var(--correct); }
+  #feedback-message.bad { color: var(--wrong); }
+  #feedback-message.neutral { color: var(--muted); }
+
+  #finger-info { font-size: 16px; font-weight: 700; margin: 6px 0 4px; color: var(--active); min-height: 18px; }
+  #key-hint { font-size: 15px; color: var(--active); font-weight: 700; }
+
+  #score-board { display: flex; gap: 28px; justify-content: center; margin-top: 16px; font-size: 20px; font-weight: 700; }
+  #score-board .sc { min-width: 80px; }
+  #score-board .ok  { color: var(--correct); }
+  #score-board .bad { color: var(--wrong); }
+  #score-board .fire{ color: #e67e22; }
+
+  #voice-status { font-size: 14px; color: var(--muted); text-align: center; margin-top: 8px; min-height: 20px; }
+
+  .keyboard {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .keyboard h2 { margin: 0 0 10px; font-size: 18px; color: var(--muted); text-align: center; }
+
+  .keyboard-case-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: nowrap;
+  }
+  .keyboard-case-row .case-btn { font-size: 14px; padding: 4px 10px; }
+
+  .row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: nowrap; justify-content: center; }
+
+  .key {
+    flex: 0 0 auto;
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    border-radius: 9px;
+    border: 2px solid transparent;
+    background: var(--key-bg);
+    color: var(--text);
+    font-size: 26px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 0 var(--key-shadow);
+    transition: all 0.1s ease;
+    position: relative;
+  }
+  .key:active, .key.active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--key-shadow);
+    border-color: var(--active);
+    color: var(--active);
+    background: #dfe6e9;
+  }
+  .key.flash-ok { background: var(--correct) !important; color: #fff !important; border-color: var(--correct); }
+  .key.flash-bad { background: var(--wrong) !important; color: #fff !important; border-color: var(--wrong); }
+  .key.out-of-range { opacity: 0.4; pointer-events: none; }
+  .key.target-glow { animation: glow 1.2s ease-in-out infinite; background: #fdebd0 !important; border-color: #f39c12; }
+  .key.explore-glow {
+    background: #f39c12 !important;
+    color: #fff !important;
+    border-color: #f39c12;
+    box-shadow: 0 4px 0 #d68910, 0 0 12px 4px rgba(243,156,18,0.5);
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 4px 0 var(--key-shadow), 0 0 0 0 rgba(243,156,18,0); }
+    50%      { box-shadow: 0 4px 0 var(--key-shadow), 0 0 16px 4px rgba(243,156,18,0.6); }
+  }
+
+  .key.hand-left  { border-left: 4px solid var(--left); }
+  .key.hand-right { border-left: 4px solid var(--right); }
+  .key.hand-thumb { border-left: 4px solid var(--thumb); }
+
+  .key.wide   { width: 86px; }
+  .key.wider  { width: 106px; }
+  .key.widest { width: 156px; }
+
+  .key .sub {
+    position: absolute;
+    top: 5px; left: 6px;
+    font-size: 10px; font-weight: 400; color: var(--muted);
+  }
+  .key .sub2 {
+    position: absolute;
+    bottom: 4px; right: 6px;
+    font-size: 9px; font-weight: 400; color: var(--muted);
+  }
+  .key.home-row::after {
+    content: "";
+    position: absolute;
+    bottom: 7px;
+    width: 5px; height: 5px;
+    background: var(--muted);
+    border-radius: 50%;
+    opacity: 0.55;
+  }
+
+  button {
+    padding: 6px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--active);
+    color: #fff;
+    box-shadow: 0 3px 0 #1a252f;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+  button:active { transform: translateY(3px); box-shadow: none; }
+  button.secondary { background: #95a5a6; box-shadow: 0 3px 0 #7f8c8d; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.warn { background: #e67e22; box-shadow: 0 3px 0 #d35400; }
+  button.ok-btn { background: var(--correct); box-shadow: 0 3px 0 #1e8449; }
+
+  body.dark { --bg:#1a1a2e; --card:#16213e; --text:#eaeaea; --muted:#a0a0b0; --key-bg:#2a2a4a; --key-shadow:#0f0f23; --active:#eaeaea; --accent:#5dade2; --correct:#2ecc71; --wrong:#e74c3c; }
+  body.dark { background: var(--bg); color: var(--text); }
+
+  .footer-note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 20px; }
+
+  .gojuon-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  .gojuon-card h2 { margin: 0 0 8px; font-size: 18px; color: var(--active); text-align: center; }
+  .gojuon-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .gojuon-table th, .gojuon-table td {
+    border: 1px solid #dfe6e9;
+    padding: 6px 4px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .gojuon-table th { background: #ecf0f1; color: var(--muted); font-size: 13px; }
+  .gojuon-table td .hira { font-size: 20px; font-weight: 700; color: var(--active); display: inline-block; }
+  .gojuon-table td .kata { font-size: 12px; color: var(--muted); }
+  .gojuon-table td .rom { font-size: 11px; font-weight: 700; color: var(--accent); display: inline-block; margin-left: 6px; vertical-align: middle; }
+  .gojuon-table td.empty { background: #f7f9fb; color: #bdc3c7; }
+  .gojuon-toggle { margin-bottom: 8px; }
+
+  @media (max-width: 640px) {
+    .key { width: 46px; height: 46px; min-width: 46px; font-size: 16px; }
+    .key.wide { width: 70px; }
+    .key.wider { width: 88px; }
+    .key.widest { width: 126px; }
+    .row { gap: 7px; margin-bottom: 7px; }
+    #big-letter { font-size: 120px; }
+    .container { padding: 14px; }
+    .display-card { padding: 24px 16px; }
+    #finger-info { font-size: 20px; }
+    #feedback-message { font-size: 22px; }
+    #score-board { font-size: 16px; gap: 16px; }
+    .settings-flex { flex-direction: column; align-items: stretch; }
+    .setting-group label { font-size: 14px; }
+    .mode-btn { font-size: 14px; }
+    select, input[type="text"] { font-size: 14px; }
+  }
+</style>
+<script src="data.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🎹 日式鍵盤學習</h1>
+  </header>
+
+  <div class="settings-card">
+    <h3>⚙️ 練習設定</h3>
+    <div class="settings-flex">
+      <div class="setting-group script-group">
+        <label style="font-size:16px;">假名種類：</label>
+        <button type="button" class="mode-btn active" data-script="hira" id="script-hira">あ 平假名</button>
+        <button type="button" class="mode-btn" data-script="kata" id="script-kata">ア 片假名</button>
+      </div>
+
+      <div class="setting-group romaji-group">
+        <label style="font-size:16px;">羅馬拼音：</label>
+        <button type="button" class="mode-btn active" id="btn-romaji-on">顯示</button>
+        <button type="button" class="mode-btn" id="btn-romaji-off">隱藏</button>
+      </div>
+
+      <div class="setting-group type-group">
+        <label style="font-size:16px;">練習類型：</label>
+        <button type="button" class="mode-btn active" data-type="kana" id="type-kana">單假名</button>
+        <button type="button" class="mode-btn" data-type="word" id="type-word">單字</button>
+        <button type="button" class="mode-btn" data-type="listen" id="type-listen">聽力</button>
+      </div>
+
+      <div class="setting-group ext-group">
+        <label style="font-size:16px;">擴充：</label>
+        <button type="button" class="mode-btn" id="btn-ext-toggle">濁音/拗音 OFF</button>
+      </div>
+
+      <div class="setting-group weak-group">
+        <label style="font-size:16px;">弱點：</label>
+        <button type="button" class="mode-btn" id="btn-weak-toggle">複習 OFF</button>
+      </div>
+
+    </div>
+
+    <div class="settings-flex">
+      <div class="setting-group theme-group">
+        <label style="font-size:16px;">主題：</label>
+        <button type="button" class="mode-btn" id="btn-dark-toggle">深色 OFF</button>
+      </div>
+
+      <div class="setting-group font-group">
+        <label style="font-size:16px;">字體：</label>
+        <select id="font-size-select" style="font-size:14px; padding:2px 6px;">
+          <option value="14">小</option>
+          <option value="16" selected>中</option>
+          <option value="18">大</option>
+          <option value="20">特大</option>
+        </select>
+      </div>
+
+      <div class="setting-group jlpt-group">
+        <label style="font-size:16px;">JLPT：</label>
+        <button type="button" class="mode-btn active" data-jlpt="N5">N5</button>
+        <button type="button" class="mode-btn" data-jlpt="N4">N4</button>
+        <button type="button" class="mode-btn" data-jlpt="N3">N3</button>
+        <button type="button" class="mode-btn" data-jlpt="N2">N2</button>
+        <button type="button" class="mode-btn" data-jlpt="N1">N1</button>
+        <button type="button" class="mode-btn" data-jlpt="all">全部</button>
+      </div>
+
+      <div class="setting-group rate-group">
+        <label style="font-size:16px;">語速：</label>
+        <select id="rate-select" style="font-size:14px; padding:2px 6px;">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+        </select>
+      </div>
+
+      <div class="setting-group order-group">
+        <label style="font-size:16px;">練習順序：</label>
+        <button type="button" class="mode-btn active" id="btn-order-rand">隨機</button>
+        <button type="button" class="mode-btn" id="btn-order-seq">依序</button>
+      </div>
+    </div>
+
+    <div class="settings-flex">
+      <div class="setting-group">
+        <label style="font-size:16px;">練習模式：</label>
+        <button type="button" class="mode-btn active" id="pai-explore">👀 自由探索</button>
+        <button type="button" class="mode-btn" id="pai-challenge">🎯 挑戰練習</button>
+      </div>
+
+      <div class="setting-group range-group">
+        <label style="font-size:18px;">出題範圍：</label>
+        <select id="range-select" style="font-size:18px; padding:4px 8px;">
+          <option value="all">全部假名</option>
+          <option value="home">家長鍵位</option>
+          <option value="left">左手區</option>
+          <option value="right">右手區</option>
+          <option value="custom">自定義範圍</option>
+        </select>
+      </div>
+
+      <div class="setting-group" id="custom-range" style="display:none;">
+        <label>自定義：</label>
+        <label>從 <input type="text" id="custom-start" value="A" maxlength="1"></label>
+        <label>到 <input type="text" id="custom-end" value="Z" maxlength="1"></label>
+      </div>
+
+      <div class="setting-group">
+        <button type="button" id="btn-enable-voice" class="warn">🔈 啟用聲音</button>
+        <button type="button" id="btn-speak">🔊 重複發音</button>
+        <button type="button" id="btn-next-min" class="ok-btn" style="display:none;">➡️ 開始下一分鐘</button>
+        <button type="button" id="btn-reset" class="secondary">🔄 歸零計分</button>
+      </div>
+    </div>
+    <div class="range-hint" id="range-hint" style="display:none;">目前範圍：全部假名</div>
+  </div>
+
+  <div class="display-card" id="display-card">
+    <p id="big-letter">あ</p>
+    <div id="big-romaji"></div>
+    <div id="word-hint" style="font-size:17px;color:var(--text);min-height:18px;margin:6px 0 0;"></div>
+    <div id="typed-display" style="font-size:20px;color:var(--accent);min-height:24px;margin-top:4px;font-weight:700;"></div>
+    <div id="feedback-message" class="neutral">👋 點擊下方按鍵或直接按鍵盤試試</div>
+    <div id="finger-info">左手小指</div>
+    <div id="key-hint">按鍵：<span id="key-label">A</span></div>
+    <div id="romaji-hint" style="display:none;font-size:14px;color:var(--accent);min-height:18px;">羅馬拼音：<span id="romaji-label"></span></div>
+    <div id="score-board">
+      <span class="sc ok">✅ <span id="score-correct">0</span></span>
+      <span class="sc bad">❌ <span id="score-wrong">0</span></span>
+      <span class="sc fire">🔥 連對 <span id="score-streak">0</span></span>
+    </div>
+    <div id="voice-status">⚠️ 請先點擊「啟用聲音」開啟語音功能</div>
+  </div>
+
+  <div class="keyboard">
+    <h2>虛擬鍵盤（日式 JIS 配列）</h2>
+    <div class="keyboard-case-row">
+      <label style="font-size:14px;color:var(--muted);margin-right:8px;">鍵盤顯示：</label>
+      <button type="button" class="mode-btn case-btn active" data-label="kana">假名</button>
+      <button type="button" class="mode-btn case-btn" data-label="romaji">羅馬字</button>
+    </div>
+    <div id="keyboard-body"></div>
+  </div>
+
+  <div class="footer-note">
+    建議練習：先記住 F 與 J 兩個家長鍵位（有凸點），雙手食指置於其上，眼睛看螢幕不要看鍵盤。日文假名對應 JIS 鍵盤配列。<br>
+    <a href="gojuon.html" style="color:var(--accent);font-weight:700;">五十音表（母音 × 子音）→</a>
+  </div>
+</div>
+
+<script>
+  // JIS kana input: key -> hiragana
+  const KANA_MAP = {
+    '`':'を', '1':'ぬ','2':'ふ','3':'あ','4':'う','5':'え','6':'お','7':'や','8':'ゆ','9':'よ','0':'わ','-':'ほ','=':'へ',
+    'Q':'た','W':'て','E':'い','R':'す','T':'か','Y':'ん','U':'な','I':'に','O':'ら','P':'せ','[':'゜','\\':'ろ',']':'む',
+    'A':'ち','S':'と','D':'し','F':'は','G':'き','H':'く','J':'ま','K':'の','L':'り',';':'れ',"'":'け',
+    'Z':'つ','X':'さ','C':'そ','V':'ひ','B':'こ','N':'み','M':'も',',':'ね','.':'る','/':'め'
+  };
+
+  // romaji for speech fallback
+  const ROMAJI_MAP = {
+    'を':'wo','ぬ':'nu','ふ':'fu','あ':'a','う':'u','え':'e','お':'o','や':'ya','ゆ':'yu','よ':'yo','わ':'wa','ほ':'ho','へ':'he',
+    'た':'ta','て':'te','い':'i','す':'su','か':'ka','ん':'n','な':'na','に':'ni','ら':'ra','せ':'se',
+    'ち':'chi','と':'to','し':'shi','は':'ha','き':'ki','く':'ku','ま':'ma','の':'no','り':'ri','れ':'re','け':'ke','む':'mu',
+    'つ':'tsu','さ':'sa','そ':'so','ひ':'hi','こ':'ko','み':'mi','も':'mo','ね':'ne','る':'ru','め':'me','ろ':'ro',
+    '゛':'dakuten','゜':'handakuten'
+  };
+
+  const FINGER_MAP = {
+    '`':{finger:'左手小指',hand:'left'}, '1':{finger:'左手小指',hand:'left'},
+    'Q':{finger:'左手小指',hand:'left'}, 'A':{finger:'左手小指',hand:'left'},
+    'Z':{finger:'左手小指',hand:'left'}, 'Tab':{finger:'左手小指',hand:'left'},
+    'CapsLock':{finger:'左手小指',hand:'left'}, 'Shift':{finger:'左手小指 / 右手小指',hand:'both'},
+    '2':{finger:'左手無名指',hand:'left'}, 'W':{finger:'左手無名指',hand:'left'},
+    'S':{finger:'左手無名指',hand:'left'}, 'X':{finger:'左手無名指',hand:'left'},
+    '3':{finger:'左手中指',hand:'left'}, 'E':{finger:'左手中指',hand:'left'},
+    'D':{finger:'左手中指',hand:'left'}, 'C':{finger:'左手中指',hand:'left'},
+    '4':{finger:'左手食指',hand:'left'}, '5':{finger:'左手食指',hand:'left'},
+    'R':{finger:'左手食指',hand:'left'}, 'T':{finger:'左手食指',hand:'left'},
+    'F':{finger:'左手食指',hand:'left'}, 'G':{finger:'左手食指',hand:'left'},
+    'V':{finger:'左手食指',hand:'left'}, 'B':{finger:'左手食指',hand:'left'},
+    '6':{finger:'右手食指',hand:'right'}, '7':{finger:'右手食指',hand:'right'},
+    'Y':{finger:'右手食指',hand:'right'}, 'U':{finger:'右手食指',hand:'right'},
+    'H':{finger:'右手食指',hand:'right'}, 'J':{finger:'右手食指',hand:'right'},
+    'N':{finger:'右手食指',hand:'right'}, 'M':{finger:'右手食指',hand:'right'},
+    '8':{finger:'右手中指',hand:'right'}, '9':{finger:'右手中指',hand:'right'},
+    'I':{finger:'右手中指',hand:'right'}, 'K':{finger:'右手中指',hand:'right'},
+    ',':{finger:'右手中指',hand:'right'},
+    '0':{finger:'右手無名指',hand:'right'}, 'O':{finger:'右手無名指',hand:'right'},
+    'L':{finger:'右手無名指',hand:'right'}, '.':{finger:'右手無名指',hand:'right'},
+    'P':{finger:'右手小指',hand:'right'}, ';':{finger:'右手小指',hand:'right'},
+    "'":{finger:'右手小指',hand:'right'}, '/':{finger:'右手小指',hand:'right'},
+    '[':{finger:'右手小指',hand:'right'}, ']':{finger:'右手小指',hand:'right'},
+    '\\':{finger:'右手小指',hand:'right'}, 'Enter':{finger:'右手小指',hand:'right'},
+    'Backspace':{finger:'右手小指',hand:'right'},
+    ' ':{finger:'拇指（空格鍵）',hand:'thumb'},
+  };
+
+  const KEYBOARD_LAYOUT = [
+    [
+      {label:'`',key:'`'},{label:'1',key:'1'},{label:'2',key:'2'},{label:'3',key:'3'},
+      {label:'4',key:'4'},{label:'5',key:'5'},{label:'6',key:'6'},{label:'7',key:'7'},
+      {label:'8',key:'8'},{label:'9',key:'9'},{label:'0',key:'0'},{label:'-',key:'-'},
+      {label:'=',key:'='},{label:'⌫',key:'Backspace',wide:true}
+    ],
+    [
+      {label:'Tab',key:'Tab',wide:true},{label:'Q',key:'Q'},{label:'W',key:'W'},
+      {label:'E',key:'E'},{label:'R',key:'R'},{label:'T',key:'T'},{label:'Y',key:'Y'},
+      {label:'U',key:'U'},{label:'I',key:'I'},{label:'O',key:'O'},{label:'P',key:'P'},
+      {label:'[',key:'['},{label:']',key:']'},{label:'\\',key:'\\'}
+    ],
+    [
+      {label:'Caps',key:'CapsLock',wide:true},{label:'A',key:'A'},{label:'S',key:'S'},
+      {label:'D',key:'D'},{label:'F',key:'F'},{label:'G',key:'G'},{label:'H',key:'H'},
+      {label:'J',key:'J'},{label:'K',key:'K'},{label:'L',key:'L'},{label:';',key:';'},
+      {label:"'",key:"'"},{label:'Enter',key:'Enter',wider:true}
+    ],
+    [
+      {label:'Shift',key:'Shift',wider:true},{label:'Z',key:'Z'},{label:'X',key:'X'},
+      {label:'C',key:'C'},{label:'V',key:'V'},{label:'B',key:'B'},{label:'N',key:'N'},
+      {label:'M',key:'M'},{label:',',key:','},{label:'.',key:'.'},{label:'/',key:'/'},
+      {label:'Shift',key:'Shift',wider:true}
+    ],
+    [
+      {label:'Ctrl',key:'Control'},{label:'Win',key:'Meta'},{label:'Alt',key:'Alt'},
+      {label:'Space',key:' ',widest:true},{label:'Alt',key:'Alt'},
+      {label:'Win',key:'Meta'},{label:'Ctrl',key:'Control'}
+    ]
+  ];
+
+  // Extended kana (dakuten/handakuten/yoon) mapped to base key for position practice
+  const EXTENDED_KANA = [
+    // dakuten
+    {key:'Q',kana:'だ',romaji:'da'},{key:'W',kana:'ぢ',romaji:'di'},{key:'E',kana:'づ',romaji:'du'},{key:'R',kana:'で',romaji:'de'},{key:'T',kana:'ど',romaji:'do'},
+    {key:'Q',kana:'ざ',romaji:'za'},{key:'W',kana:'じ',romaji:'ji'},{key:'E',kana:'ず',romaji:'zu'},{key:'R',kana:'ぜ',romaji:'ze'},{key:'T',kana:'ぞ',romaji:'zo'},
+    {key:'Q',kana:'が',romaji:'ga'},{key:'W',kana:'ぎ',romaji:'gi'},{key:'E',kana:'ぐ',romaji:'gu'},{key:'R',kana:'げ',romaji:'ge'},{key:'T',kana:'ご',romaji:'go'},
+    {key:'A',kana:'ば',romaji:'ba'},{key:'S',kana:'び',romaji:'bi'},{key:'D',kana:'ぶ',romaji:'bu'},{key:'F',kana:'べ',romaji:'be'},{key:'G',kana:'ぼ',romaji:'bo'},
+    {key:'A',kana:'ぱ',romaji:'pa'},{key:'S',kana:'ぴ',romaji:'pi'},{key:'D',kana:'ぷ',romaji:'pu'},{key:'F',kana:'ぺ',romaji:'pe'},{key:'G',kana:'ぽ',romaji:'po'},
+    // yoon (mapped to base consonant key)
+    {key:'T',kana:'きゃ',romaji:'kya'},{key:'T',kana:'きゅ',romaji:'kyu'},{key:'T',kana:'きょ',romaji:'kyo'},
+    {key:'R',kana:'しゃ',romaji:'sha'},{key:'R',kana:'しゅ',romaji:'shu'},{key:'R',kana:'しょ',romaji:'sho'},
+    {key:'E',kana:'ちゃ',romaji:'cha'},{key:'E',kana:'ちゅ',romaji:'chu'},{key:'E',kana:'ちょ',romaji:'cho'},
+    {key:'U',kana:'にゃ',romaji:'nya'},{key:'U',kana:'にゅ',romaji:'nyu'},{key:'U',kana:'にょ',romaji:'nyo'},
+    {key:'H',kana:'ひゃ',romaji:'hya'},{key:'H',kana:'ひゅ',romaji:'hyu'},{key:'H',kana:'ひょ',romaji:'hyo'},
+    {key:'J',kana:'みゃ',romaji:'mya'},{key:'J',kana:'みゅ',romaji:'myu'},{key:'J',kana:'みょ',romaji:'myo'},
+    {key:'L',kana:'りゃ',romaji:'rya'},{key:'L',kana:'りゅ',romaji:'ryu'},{key:'L',kana:'りょ',romaji:'ryo'},
+  ];
+  let scriptMode = 'hira'; // hira / kata / mixed
+  let currentShowKata = false;
+  let keyLabelMode = 'kana'; // kana / romaji
+  let showRomaji = true;
+  let sequentialOrder = false;
+  let seqIndex = 0;
+  let practiceType = 'kana'; // kana / word / listen
+  let includeExtended = false;
+  let weakReview = false;
+  let darkMode = false;
+  let jlptLevel = 'N5';
+  let speechRate = 1.0;
+  let typedBuffer = '';
+  let currentWord = null;
+  let currentKanaStr = '';
+  let currentRomajiStr = '';
+  let exploreKanaStr = '';
+  let exploreRomajiStr = '';
+  let currentRange = 'all';
+  let customStart = 'A';
+  let customEnd = 'Z';
+  let allowedKeys = new Set();
+  let challengeMode = false;
+  let currentTarget = null;
+  let scoreCorrect = 0;
+  let scoreWrong = 0;
+  let streak = 0;
+
+  const $big = document.getElementById('big-letter');
+  const $bigRomaji = document.getElementById('big-romaji');
+  const $wordHint = document.getElementById('word-hint');
+  const $typedDisplay = document.getElementById('typed-display');
+
+  // Build kana -> data entry map from JA_DATA
+  const JLPT_DATA = {
+    N5: [
+      {kana:'あさ',romaji:'asa',meaning:'早上',kanji:'朝'},
+      {kana:'あめ',romaji:'ame',meaning:'雨',kanji:'雨'},
+      {kana:'いぬ',romaji:'inu',meaning:'狗',kanji:'犬'},
+      {kana:'うみ',romaji:'umi',meaning:'海',kanji:'海'},
+      {kana:'えき',romaji:'eki',meaning:'車站',kanji:'駅'},
+      {kana:'おちゃ',romaji:'ocha',meaning:'茶',kanji:'お茶'},
+      {kana:'かさ',romaji:'kasa',meaning:'雨傘',kanji:'傘'},
+      {kana:'くるま',romaji:'kuruma',meaning:'車',kanji:'車'},
+      {kana:'さかな',romaji:'sakana',meaning:'魚',kanji:'魚'},
+      {kana:'しお',romaji:'shio',meaning:'鹽',kanji:'塩'},
+      {kana:'すし',romaji:'sushi',meaning:'壽司',kanji:'寿司'},
+      {kana:'たまご',romaji:'tamago',meaning:'雞蛋',kanji:'卵'},
+      {kana:'ちず',romaji:'chizu',meaning:'地圖',kanji:'地図'},
+      {kana:'つくえ',romaji:'tsukue',meaning:'書桌',kanji:'机'},
+      {kana:'てがみ',romaji:'tegami',meaning:'信件',kanji:'手紙'},
+      {kana:'とけい',romaji:'tokei',meaning:'時鐘',kanji:'時計'},
+      {kana:'なつ',romaji:'natsu',meaning:'夏天',kanji:'夏'},
+      {kana:'ねこ',romaji:'neko',meaning:'貓',kanji:'猫'},
+      {kana:'のみもの',romaji:'nomimono',meaning:'飲料',kanji:'飲み物'},
+      {kana:'はな',romaji:'hana',meaning:'花',kanji:'花'},
+      {kana:'ひと',romaji:'hito',meaning:'人',kanji:'人'},
+      {kana:'ほん',romaji:'hon',meaning:'書',kanji:'本'},
+      {kana:'まど',romaji:'mado',meaning:'窗',kanji:'窓'},
+      {kana:'みず',romaji:'mizu',meaning:'水',kanji:'水'},
+      {kana:'やま',romaji:'yama',meaning:'山',kanji:'山'},
+      {kana:'ゆき',romaji:'yuki',meaning:'雪',kanji:'雪'},
+      {kana:'よる',romaji:'yoru',meaning:'夜晚',kanji:'夜'},
+      {kana:'らーめん',romaji:'raamen',meaning:'拉麵',kanji:'ラーメン'},
+      {kana:'りんご',romaji:'ringo',meaning:'蘋果',kanji:'林檎'},
+      {kana:'れすとらん',romaji:'resutoran',meaning:'餐廳',kanji:'レストラン'},
+    ],
+    N4: [
+      {kana:'あたらしい',romaji:'atarashii',meaning:'新的',kanji:'新しい'},
+      {kana:'あつい',romaji:'atsui',meaning:'熱的',kanji:'暑い'},
+      {kana:'いそがしい',romaji:'isogashii',meaning:'忙碌的',kanji:'忙しい'},
+      {kana:'うれしい',romaji:'ureshii',meaning:'開心的',kanji:'嬉しい'},
+      {kana:'おいしい',romaji:'oishii',meaning:'好吃的',kanji:'美味しい'},
+      {kana:'おおきい',romaji:'ookii',meaning:'大的',kanji:'大きい'},
+      {kana:'かわいい',romaji:'kawaii',meaning:'可愛的',kanji:'可愛い'},
+      {kana:'きれい',romaji:'kirei',meaning:'漂亮的',kanji:'綺麗'},
+      {kana:'げんき',romaji:'genki',meaning:'有精神',kanji:'元気'},
+      {kana:'しずか',romaji:'shizuka',meaning:'安靜的',kanji:'静か'},
+      {kana:'すき',romaji:'suki',meaning:'喜歡',kanji:'好き'},
+      {kana:'ちいさい',romaji:'chiisai',meaning:'小的',kanji:'小さい'},
+      {kana:'つめたい',romaji:'tsumetai',meaning:'冷的',kanji:'冷たい'},
+      {kana:'ねむい',romaji:'nemui',meaning:'想睡的',kanji:'眠い'},
+      {kana:'やさしい',romaji:'yasashii',meaning:'溫柔的',kanji:'優しい'},
+    ],
+    N3: [
+      {kana:'あんぜん',romaji:'anzen',meaning:'安全',kanji:'安全'},
+      {kana:'かんたん',romaji:'kantan',meaning:'簡單',kanji:'簡単'},
+      {kana:'きけん',romaji:'kiken',meaning:'危險',kanji:'危険'},
+      {kana:'べんり',romaji:'benri',meaning:'方便',kanji:'便利'},
+      {kana:'ふくざつ',romaji:'fukuzatsu',meaning:'複雜',kanji:'複雑'},
+      {kana:'たいせつ',romaji:'taisetsu',meaning:'重要',kanji:'大切'},
+      {kana:'ひつよう',romaji:'hitsuyou',meaning:'必要',kanji:'必要'},
+      {kana:'むり',romaji:'muri',meaning:'不可能',kanji:'無理'},
+    ],
+    N2: [
+      {kana:'あいまい',romaji:'aimai',meaning:'模糊',kanji:'曖昧'},
+      {kana:'かんがえ',romaji:'kangae',meaning:'想法',kanji:'考え'},
+      {kana:'じゆう',romaji:'jiyuu',meaning:'自由',kanji:'自由'},
+      {kana:'せきにん',romaji:'sekinin',meaning:'責任',kanji:'責任'},
+      {kana:'やくそく',romaji:'yakusoku',meaning:'約定',kanji:'約束'},
+    ],
+    N1: [
+      {kana:'あいまい',romaji:'aimai',meaning:'曖昧',kanji:'曖昧'},
+      {kana:'けいけん',romaji:'keiken',meaning:'經驗',kanji:'経験'},
+      {kana:'しんけん',romaji:'shinken',meaning:'認真',kanji:'真剣'},
+      {kana:'ちゅうちょう',romaji:'chuuchou',meaning:'妥協',kanji:'妥協'},
+      {kana:'やむをえない',romaji:'yamuwoenai',meaning:'不得已',kanji:'やむを得ない'},
+    ]
+  };
+  const JA_MAP = {};
+  const WORD_LIST = [];
+  const SENTENCES = {
+    'あ':'あめがふっています。','い':'いぬがいます。','う':'うみへいきました。','え':'えきにつきました。','お':'おちゃをのみます。',
+    'か':'かさをもっています。','き':'きがおおきいです。','く':'くつをはきます。','け':'けいたいをつかいます。','こ':'こどもがいます。',
+    'さ':'さかなをたべます。','し':'しおをいれます。','す':'すしをたべます。','せ':'せんせいがいます。','そ':'そらがきれいです。',
+    'た':'たまごをたべます。','ち':'ちずをみます。','つ':'つくえのうえです。','て':'てがみをかきます。','と':'とけいをみます。',
+    'な':'なつがきました。','に':'にくをたべます。','ぬ':'ぬいぐるみがあります。','ね':'ねこがいます。','の':'のみものをのみます。',
+    'は':'はながさきました。','ひ':'ひこうきがとびます。','ふ':'ふねがうかびます。','へ':'へやにはいります。','ほ':'ほんをよみます。',
+    'ま':'まどをあけます。','み':'みずをのみます。'
+  };
+  (function buildJaMap() {
+    try {
+      if (window.JA_DATA && Array.isArray(window.JA_DATA.seion)) {
+        window.JA_DATA.seion.forEach(e => {
+          if (e.hiragana) JA_MAP[e.hiragana] = e;
+          if (e.katakana) JA_MAP[e.katakana] = e;
+        });
+      }
+    } catch (err) {}
+  })();
+
+  function rebuildWordList() {
+    WORD_LIST.length = 0;
+    // from JA_DATA seion words
+    try {
+      if (window.JA_DATA && Array.isArray(window.JA_DATA.seion)) {
+        window.JA_DATA.seion.forEach(e => {
+          if (e.hiragana_word && e.hiragana_word.kana) {
+            WORD_LIST.push({ kana: e.hiragana_word.kana, romaji: (e.hiragana_word.romaji||'').toLowerCase(), meaning: e.hiragana_word.meaning_zh||'', kanji: e.hiragana_word.kanji||'' });
+          }
+        });
+      }
+    } catch (err) {}
+    // JLPT words
+    const levels = (jlptLevel === 'all') ? Object.keys(JLPT_DATA) : [jlptLevel];
+    levels.forEach(lv => {
+      const arr = JLPT_DATA[lv];
+      if (Array.isArray(arr)) {
+        arr.forEach(w => {
+          WORD_LIST.push({ kana: w.kana, romaji: (w.romaji||'').toLowerCase(), meaning: w.meaning||'', kanji: w.kanji||'' });
+        });
+      }
+    });
+  }
+  const $feedback = document.getElementById('feedback-message');
+  const $finger = document.getElementById('finger-info');
+  const $keyLabel = document.getElementById('key-label');
+  const $romajiLabel = document.getElementById('romaji-label');
+  const $displayCard = document.getElementById('display-card');
+  const $kb = document.getElementById('keyboard-body');
+  const $btnEnable = document.getElementById('btn-enable-voice');
+  const $btnSpeak = document.getElementById('btn-speak');
+  const $btnNextMin = document.getElementById('btn-next-min');
+  const $btnReset = document.getElementById('btn-reset');
+  const $voiceStatus = document.getElementById('voice-status');
+  const $rangeSelect = document.getElementById('range-select');
+  const $customRow = document.getElementById('custom-range');
+  const $rangeHint = document.getElementById('range-hint');
+  const $customStart = document.getElementById('custom-start');
+  const $customEnd = document.getElementById('custom-end');
+  const $scoreCorrect = document.getElementById('score-correct');
+  const $scoreWrong = document.getElementById('score-wrong');
+  const $scoreStreak = document.getElementById('score-streak');
+  const $timerDisplay = document.getElementById('timer-display');
+
+  let voiceEnabled = false;
+  let voicesReady = false;
+  let availableVoices = [];
+  let currentUtterance = null;
+
+  let caseSensitive = false;
+  let timeLeft = 60;
+  let timerInterval = null;
+  let quizActive = false;
+
+  const audioCtx = (() => {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    try { return Ctx ? new Ctx() : null; } catch(e) { return null; }
+  })();
+
+  function playTone(freq, duration = 0.15, type = 'sine', delay = 0, volume = 0.1) {
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const t0 = audioCtx.currentTime + delay;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(volume, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration);
+    } catch (e) {}
+  }
+  function soundCorrect() {
+    playTone(523, 0.12, 'sine', 0, 0.12);
+    playTone(659, 0.12, 'sine', 0.10, 0.12);
+    playTone(784, 0.20, 'sine', 0.20, 0.12);
+  }
+  function soundWrong() {
+    playTone(220, 0.18, 'square', 0, 0.08);
+    playTone(180, 0.25, 'square', 0.15, 0.08);
+  }
+
+  function hiraToKata(h) {
+    if (!h || h.length !== 1) return h;
+    const c = h.charCodeAt(0);
+    if (c >= 0x3041 && c <= 0x3096) return String.fromCharCode(c + 0x60);
+    return h;
+  }
+  function keyKana(key) {
+    const h = KANA_MAP[key];
+    if (!h) return null;
+    if (scriptMode === 'kata') return hiraToKata(h);
+    if (scriptMode === 'mixed') return currentShowKata ? hiraToKata(h) : h;
+    return h;
+  }
+  function romajiOf(kana) {
+    // kana may be hira or kata; convert to hira first
+    let h = kana;
+    const c = kana.charCodeAt(0);
+    if (c >= 0x30A1 && c <= 0x30F6) h = String.fromCharCode(c - 0x60);
+    return ROMAJI_MAP[h] || '';
+  }
+
+  function initVoice() {
+    if (!window.speechSynthesis) {
+      $voiceStatus.textContent = '⚠️ 此瀏覽器不支援語音合成，請改用 Chrome 或 Edge';
+      $voiceStatus.style.color = '#c0392b';
+      $btnEnable.disabled = true;
+      $btnSpeak.disabled = true;
+      return;
+    }
+    const loadVoices = () => {
+      availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        voicesReady = true;
+        const jaVoice = availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja'));
+        $voiceStatus.textContent = jaVoice
+          ? '✅ 語音已啟用（' + jaVoice.name + '）'
+          : '✅ 語音已啟用（' + availableVoices.length + ' 個語音，將以羅馬字發音）';
+        $voiceStatus.style.color = '#27ae60';
+      }
+    };
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    voiceEnabled = true;
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    $btnEnable.textContent = '✅ 聲音已啟用';
+    $btnEnable.classList.remove('warn');
+    $btnEnable.disabled = true;
+    $btnSpeak.disabled = false;
+
+    if (!voicesReady) {
+      $voiceStatus.textContent = '⏳ 正在載入語音…請再按一次假名';
+      $voiceStatus.style.color = '#e67e22';
+    }
+    playTone(600, 0.15);
+    setTimeout(() => speakKana('あ'), 200);
+  }
+
+  function speakWord(text, romaji) {
+    if (!voiceEnabled || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const jaVoice = voicesReady ? availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja')) : null;
+      const u = new SpeechSynthesisUtterance(jaVoice ? text : (romaji || text));
+      u.lang = jaVoice ? 'ja-JP' : 'en-US';
+      u.rate = speechRate;
+      u.volume = 1;
+      if (jaVoice) u.voice = jaVoice;
+      currentUtterance = u;
+      window.speechSynthesis.speak(u);
+    } catch (err) {}
+  }
+
+  function speakKana(kana) {
+    if (!voiceEnabled || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const jaVoice = voicesReady ? availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja')) : null;
+      const u = new SpeechSynthesisUtterance(jaVoice ? kana : romajiOf(kana));
+      u.lang = jaVoice ? 'ja-JP' : 'en-US';
+      u.rate = speechRate;
+      u.volume = 1;
+      if (jaVoice) u.voice = jaVoice;
+      u.onerror = (e) => {
+        if (e.error && e.error !== 'interrupted' && e.error !== 'canceled') {
+          $voiceStatus.textContent = '⚠️ 語音錯誤：' + e.error;
+          $voiceStatus.style.color = '#c0392b';
+        }
+      };
+      currentUtterance = u;
+      window.speechSynthesis.speak(u);
+    } catch (err) {
+      $voiceStatus.textContent = '⚠️ 語音啟動失敗：' + err.message;
+      $voiceStatus.style.color = '#c0392b';
+    }
+  }
+
+  function computeAllowedKeys() {
+    allowedKeys = new Set();
+    if (currentRange === 'all') {
+      Object.keys(KANA_MAP).forEach(k => allowedKeys.add(k));
+    } else if (currentRange === 'home') {
+      ['A','S','D','F','J','K','L',';'].forEach(k => allowedKeys.add(k));
+    } else if (currentRange === 'left') {
+      ['Q','W','E','R','A','S','D','F','Z','X','C','V'].forEach(k => allowedKeys.add(k));
+    } else if (currentRange === 'right') {
+      ['Y','U','I','O','H','J','K','L','N','M','P',';'].forEach(k => allowedKeys.add(k));
+    } else if (currentRange === 'custom') {
+      const s = (customStart || 'A').toUpperCase().charCodeAt(0);
+      const e = (customEnd || 'Z').toUpperCase().charCodeAt(0);
+      for (let c = Math.min(s, e); c <= Math.max(s, e); c++) {
+        const ch = String.fromCharCode(c);
+        if (ch >= 'A' && ch <= 'Z' && KANA_MAP[ch]) allowedKeys.add(ch);
+      }
+    }
+    updateRangeHint();
+  }
+
+  function updateRangeHint() {
+    let text;
+    if (currentRange === 'custom') {
+      text = `目前範圍：${customStart.toUpperCase()} → ${customEnd.toUpperCase()}（${allowedKeys.size} 個假名）`;
+    } else {
+      const names = { all:'全部假名 ' + allowedKeys.size + ' 個', home:'家長鍵位 8 個鍵', left:'左手區 12 個鍵', right:'右手區 12 個鍵' };
+      text = `目前範圍：${names[currentRange]}`;
+    }
+    $rangeHint.textContent = text + (challengeMode ? '｜🎯 挑戰練習中' : '');
+  }
+
+  function buildKeyboard() {
+    $kb.innerHTML = '';
+    KEYBOARD_LAYOUT.forEach(row => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'row';
+      row.forEach(k => {
+        const keyEl = document.createElement('div');
+        keyEl.className = 'key' + (k.wide ? ' wide' : '') + (k.wider ? ' wider' : '') + (k.widest ? ' widest' : '');
+        keyEl.dataset.key = k.key;
+        const kana = KANA_MAP[k.key];
+        if (keyLabelMode === 'kana' && kana) {
+          keyEl.textContent = kana;
+        } else {
+          keyEl.textContent = k.label;
+        }
+        if (k.label.length === 1 && k.label !== k.key && !(keyLabelMode === 'kana' && kana)) {
+          const sub = document.createElement('span');
+          sub.className = 'sub';
+          sub.textContent = k.key;
+          keyEl.appendChild(sub);
+        }
+        if (keyLabelMode === 'kana' && kana) {
+          const sub = document.createElement('span');
+          sub.className = 'sub2';
+          sub.textContent = k.key;
+          keyEl.appendChild(sub);
+        }
+        keyEl.addEventListener('click', () => activateKey(k.key));
+        rowEl.appendChild(keyEl);
+      });
+      $kb.appendChild(rowEl);
+    });
+    document.querySelectorAll('.key').forEach(el => {
+      if (el.dataset.key === 'F' || el.dataset.key === 'J') el.classList.add('home-row');
+    });
+    // hand borders
+    document.querySelectorAll('.key').forEach(el => {
+      const info = FINGER_MAP[el.dataset.key];
+      if (!info) return;
+      if (info.hand === 'left') el.classList.add('hand-left');
+      else if (info.hand === 'right') el.classList.add('hand-right');
+      else if (info.hand === 'thumb') el.classList.add('hand-thumb');
+    });
+    updateKeyRangeStates();
+  }
+
+  function updateKeyRangeStates() {
+    document.querySelectorAll('.key').forEach(el => {
+      const key = el.dataset.key;
+      if (KANA_MAP[key] && !allowedKeys.has(key)) {
+        el.classList.add('out-of-range');
+      } else {
+        el.classList.remove('out-of-range');
+      }
+    });
+  }
+
+  function getFingerInfo(key) {
+    return FINGER_MAP[key] || FINGER_MAP[key.toUpperCase()] || { finger: '－', hand: '' };
+  }
+
+  function currentRomaji(key) {
+    if (!key) return '';
+    const kana = keyKana(key);
+    return kana ? romajiOf(kana) : '';
+  }
+
+  function updateRomajiHint(key) {
+    if (!showRomaji) { $romajiLabel.textContent = ''; $bigRomaji.textContent = ''; document.getElementById('romaji-hint').style.display = 'none'; return; }
+    // standalone romaji line hidden per user request; romaji shown beside the char instead
+    document.getElementById('romaji-hint').style.display = 'none';
+    const k = key || currentTarget || exploreTarget;
+    const r = currentRomaji(k);
+    $romajiLabel.textContent = r ? r : '';
+    $bigRomaji.textContent = r ? r : '';
+  }
+
+  function updateWordHint(key) {
+    if (!$wordHint) return;
+    const k = key || currentTarget || exploreTarget;
+    let kana = '';
+    if (key === currentTarget && currentKanaStr) kana = currentKanaStr;
+    else if (key === exploreTarget && exploreKanaStr) kana = exploreKanaStr;
+    else kana = (k ? keyKana(k) : '');
+    const entry = kana ? JA_MAP[kana] : null;
+    if (!entry) { $wordHint.textContent = ''; return; }
+    const isKata = (scriptMode === 'kata') || (scriptMode === 'mixed' && currentShowKata);
+    const w = isKata ? entry.katakana_word : entry.hiragana_word;
+    if (!w) { $wordHint.innerHTML = ''; return; }
+    if (w.katakana) {
+      const kana = w.katakana;
+      const rom = w.romaji || '';
+      const meaning = w.meaning_zh || '';
+      $wordHint.innerHTML = '<span style="font-weight:700;">' + kana + '</span> '
+        + '<span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
+        + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '')
+        + (SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] ? '<br><span style="color:var(--muted);font-size:16px;">例句：' + SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] + '</span>' : '');
+      // speak the word
+      // word speech handled by caller after kana speech
+    } else {
+      const kana = w.kana || '';
+      const kanji = (w.kanji && w.kanji !== w.kana) ? w.kanji : '';
+      const rom = w.romaji || '';
+      const meaning = w.meaning_zh || '';
+      $wordHint.innerHTML = '<span style="font-weight:700;">' + kana + '</span>'
+        + (kanji ? ' <span style="color:var(--muted);">(' + kanji + ')</span>' : '')
+        + ' <span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
+        + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '')
+        + (SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)] ? '<br><span style="color:var(--muted);font-size:16px;">例句：' + SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)] + '</span>' : '');
+      // word speech handled by caller after kana speech
+    }
+  }
+
+  function setFeedback(msg, cls) {
+    $feedback.textContent = msg;
+    $feedback.className = cls || 'neutral';
+  }
+
+  function flashCard(cls, ms) {
+    $displayCard.classList.remove('flash-correct', 'flash-wrong');
+    if (cls) {
+      $displayCard.classList.add(cls);
+      setTimeout(() => $displayCard.classList.remove(cls), ms || 500);
+    }
+  }
+
+  function flashKey(key, cls) {
+    const el = document.querySelector(`.key[data-key="${CSS.escape(key)}"]`);
+    if (!el) return;
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 500);
+  }
+
+  function updateScore() {
+    $scoreCorrect.textContent = scoreCorrect;
+    $scoreWrong.textContent = scoreWrong;
+    $scoreStreak.textContent = streak;
+  }
+
+  function clearGlow() {
+    document.querySelectorAll('.key.target-glow').forEach(el => el.classList.remove('target-glow'));
+  }
+  function clearExploreGlow() {
+    document.querySelectorAll('.key.explore-glow').forEach(el => el.classList.remove('explore-glow'));
+  }
+
+  function pickVariant(key) {
+    const baseHira = KANA_MAP[key];
+    if (!baseHira) return { kana: key, romaji: '' };
+    // extended?
+    if (includeExtended) {
+      const cands = EXTENDED_KANA.filter(e => e.key === key);
+      if (cands.length && Math.random() < 0.45) {
+        const e = cands[Math.floor(Math.random()*cands.length)];
+        const kana = (scriptMode === 'kata') ? hiraToKata(e.kana) : e.kana;
+        return { kana: kana, romaji: e.romaji };
+      }
+    }
+    const hira = baseHira;
+    const kana = (scriptMode === 'kata') ? hiraToKata(hira) : hira;
+    return { kana: kana, romaji: ROMAJI_MAP[hira] || '' };
+  }
+
+  function weakKeys(keys) {
+    if (!weakReview) return keys;
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    const w = keys.filter(k => (stats[k] && stats[k].w > 0));
+    return w.length ? w : keys;
+  }
+
+  function srsPick(keys) {
+    // load stats
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    // score each key: higher = weaker
+    const scored = keys.map(k => {
+      const s = stats[k] || {c:0,w:0};
+      const score = (s.w+1)/(s.c+s.w+2);
+      return {k, score};
+    }).sort((a,b)=>b.score-a.score);
+    const top = scored.slice(0, Math.max(1, Math.ceil(scored.length/2)));
+    return top[Math.floor(Math.random()*top.length)].k;
+  }
+
+  function nextWord() {
+    if (WORD_LIST.length === 0) { setFeedback('單字資料載入失敗', 'bad'); return; }
+    currentWord = WORD_LIST[Math.floor(Math.random()*WORD_LIST.length)];
+    typedBuffer = '';
+    $big.textContent = currentWord.kana;
+    $wordHint.textContent = '';
+    updateTypedDisplay();
+    setFeedback('⌨️ 請輸入羅馬字，按 Enter 送出', 'neutral');
+    $finger.textContent = '';
+    $keyLabel.textContent = '';
+    $bigRomaji.textContent = '';
+    clearGlow(); clearExploreGlow();
+    if (voiceEnabled) speakWord(currentWord.kana, currentWord.romaji);
+  }
+
+  function submitWord() {
+    if (!currentWord) return;
+    const ans = typedBuffer.trim().toLowerCase();
+    if (ans === currentWord.romaji) {
+      scoreCorrect++; streak++; updateScore();
+      soundCorrect();
+      setFeedback('✅ 正確！' + currentWord.kana + ' = ' + currentWord.romaji, 'ok');
+      flashCard('flash-correct', 500);
+      setTimeout(nextWord, 4000);
+    } else {
+      scoreWrong++; streak=0; updateScore();
+      soundWrong();
+      setFeedback('❌ 錯誤！正確：' + currentWord.romaji, 'bad');
+      flashCard('flash-wrong', 500);
+    }
+    typedBuffer = '';
+    updateTypedDisplay();
+  }
+
+  function updateTypedDisplay() {
+    if (!$typedDisplay) return;
+    if (practiceType !== 'word') { $typedDisplay.textContent = ''; return; }
+    $typedDisplay.textContent = typedBuffer + '▋';
+  }
+
+  function updateSrs(key, correct) {
+    if (!key) return;
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem('ja_stats')||'{}'); } catch(e){}
+    if (!stats[key]) stats[key] = {c:0,w:0};
+    if (correct) stats[key].c++; else stats[key].w++;
+    try { localStorage.setItem('ja_stats', JSON.stringify(stats)); } catch(e){}
+  }
+
+  function updateBigRomajiVisibility() {
+    if (!$bigRomaji) return;
+    $bigRomaji.style.display = (practiceType === 'listen' || practiceType === 'word') ? 'none' : '';
+  }
+
+  function nextQuestion() {
+    if (practiceType === 'word') { nextWord(); return; }
+    const pool = weakKeys([...allowedKeys]);
+    if (pool.length === 0) return;
+    if (practiceType === 'listen') {
+      // same as kana but hide display handled later
+    }
+    if (sequentialOrder) {
+      const seq = gojuonKeys();
+      if (seq.length === 0) return;
+      if (seqIndex >= seq.length) seqIndex = 0;
+      currentTarget = seq[seqIndex];
+      seqIndex++;
+    } else {
+      currentTarget = srsPick(pool);
+    }
+    if (scriptMode === 'mixed') currentShowKata = Math.random() < 0.5;
+    const v = pickVariant(currentTarget);
+    currentKanaStr = v.kana;
+    currentRomajiStr = v.romaji;
+
+    const kana = currentKanaStr;
+    $big.textContent = kana;
+    // listening mode: hide the letter
+    if (practiceType === 'listen') { $big.textContent = '🔊'; }
+    setFeedback('🎯 請按：' + kana + '（鍵盤會發亮）', 'neutral');
+    $finger.textContent = getFingerInfo(currentTarget).finger + '（提示）';
+    $keyLabel.textContent = currentTarget;
+    // override romaji hint with current variant romaji
+    if (showRomaji) {
+      $bigRomaji.textContent = currentRomajiStr;
+      $romajiLabel.textContent = currentRomajiStr;
+    }
+    updateWordHint(currentTarget);
+    // play sound in listen mode
+    if (practiceType === 'listen' && voiceEnabled) { speakKana(kana); }
+
+    clearGlow();
+    const el = document.querySelector(`.key[data-key="${CSS.escape(currentTarget)}"]`);
+    if (el) el.classList.add('target-glow');
+
+    if (voiceEnabled) {
+      speakWord(kana, currentRomajiStr);
+      const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[kana] : null;
+      if (_entry) {
+        const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+        if (_w) {
+          const _text = _w.katakana || _w.kana || '';
+          const _rom = _w.romaji || '';
+          setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
+        }
+      }
+    }
+  }
+
+  function checkAnswer(pressedKey) {
+    if (['Shift','Control','Alt','Meta','Tab','CapsLock'].includes(pressedKey)) return;
+
+    if (!allowedKeys.has(pressedKey)) {
+      playTone(300, 0.1, 'square', 0, 0.06);
+      setFeedback('⚠️ 這個鍵不在練習範圍內', 'neutral');
+      flashKey(pressedKey, 'flash-bad');
+      return;
+    }
+
+    if (pressedKey === currentTarget) {
+      updateSrs(currentTarget, true);
+      scoreCorrect++;
+      streak++;
+      updateScore();
+      soundCorrect();
+      const kana = keyKana(pressedKey);
+      setFeedback('✅ 答對了！就是「' + kana + '」', 'ok');
+      flashCard('flash-correct', 500);
+      flashKey(pressedKey, 'flash-ok');
+      $finger.textContent = getFingerInfo(pressedKey).finger;
+      $keyLabel.textContent = pressedKey;
+      updateRomajiHint(pressedKey);
+    updateWordHint(pressedKey);
+setTimeout(nextQuestion, 4000);
+    } else {
+      updateSrs(currentTarget, false);
+      scoreWrong++;
+      streak = 0;
+      updateScore();
+      soundWrong();
+      const info = getFingerInfo(currentTarget);
+      const targetKana = keyKana(currentTarget);
+      setFeedback('❌ 錯了！你按了「' + keyKana(pressedKey) + '」，請找「' + targetKana + '」', 'bad');
+      flashCard('flash-wrong', 500);
+      flashKey(pressedKey, 'flash-bad');
+      $finger.textContent = info.finger + '（提示：用' + info.finger.replace(/（|）/g, '') + '）';
+    }
+  }
+
+  let exploreTarget = null;
+
+  function nextExploreTarget() {
+    if (practiceType === 'word') { nextWord(); return; }
+    let pool;
+    if (sequentialOrder) {
+      const seq = gojuonKeys();
+      if (seq.length === 0) return;
+      if (seqIndex >= seq.length) seqIndex = 0;
+      exploreTarget = seq[seqIndex];
+      seqIndex++;
+    } else {
+      pool = weakKeys([...allowedKeys]);
+      if (pool.length === 0) return;
+      exploreTarget = pool[Math.floor(Math.random() * pool.length)];
+    }
+    if (scriptMode === 'mixed') currentShowKata = Math.random() < 0.5;
+
+    const v = pickVariant(exploreTarget);
+    exploreKanaStr = v.kana;
+    exploreRomajiStr = v.romaji;
+    const kana = exploreKanaStr;
+    if (practiceType === 'listen') { $big.textContent = '🔊'; } else { $big.textContent = kana; }
+    setFeedback('🔍 請按鍵盤：' + kana, 'neutral');
+    $finger.textContent = getFingerInfo(exploreTarget).finger;
+    $keyLabel.textContent = exploreTarget;
+    if (showRomaji) {
+      $bigRomaji.textContent = exploreRomajiStr;
+      $romajiLabel.textContent = exploreRomajiStr;
+    }
+    updateWordHint(exploreTarget);
+    if (practiceType === 'listen' && voiceEnabled) { speakWord(kana, exploreRomajiStr); }
+$finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left)'
+                        : getFingerInfo(exploreTarget).hand === 'right' ? 'var(--right)' : 'var(--thumb)';
+
+    clearExploreGlow();
+    const el = document.querySelector(`.key[data-key="${CSS.escape(exploreTarget)}"]`);
+    if (el) el.classList.add('explore-glow');
+
+    if (voiceEnabled && practiceType !== 'listen') {
+      speakWord(kana, exploreRomajiStr);
+      const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[kana] : null;
+      if (_entry) {
+        const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+        if (_w) {
+          const _text = _w.katakana || _w.kana || '';
+          const _rom = _w.romaji || '';
+          setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
+        }
+      }
+    }
+  }
+
+  function exploreKey(pressedKey) {
+    updateRomajiHint(pressedKey);
+    updateWordHint(pressedKey);
+    const info = getFingerInfo(pressedKey);
+
+    if (exploreTarget) {
+      const match = (pressedKey === exploreTarget);
+      if (match) {
+        updateSrs(exploreTarget, true);
+        soundCorrect();
+        flashKey(pressedKey, 'flash-ok');
+        clearExploreGlow();
+        const _kana = keyKana(exploreTarget);
+        if (voiceEnabled) {
+          speakKana(_kana);
+          const _entry = (typeof JA_MAP !== 'undefined') ? JA_MAP[_kana] : null;
+          if (_entry) {
+            const _w = (scriptMode === 'kata') ? _entry.katakana_word : _entry.hiragana_word;
+            if (_w) {
+              const _text = _w.katakana || _w.kana || '';
+              const _rom = _w.romaji || '';
+              setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
+            }
+          }
+        }
+        setTimeout(nextExploreTarget, 4000);
+        return;
+      } else {
+        soundWrong();
+        flashKey(pressedKey, 'flash-bad');
+        return;
+      }
+    }
+
+    const kana = keyKana(pressedKey);
+    $big.textContent = kana || pressedKey;
+    $finger.textContent = info.finger;
+    $keyLabel.textContent = pressedKey;
+    updateRomajiHint(pressedKey);
+    updateWordHint(pressedKey);
+$finger.style.color = info.hand === 'left' ? 'var(--left)'
+                        : info.hand === 'right' ? 'var(--right)' : 'var(--thumb)';
+
+    if (kana) {
+      speakKana(kana);
+      setFeedback('🔊 ' + kana, 'neutral');
+    } else {
+      playTone(400, 0.12, 'sine', 0, 0.08);
+    }
+  }
+
+  function activateKey(rawKey) {
+    let key = rawKey;
+    let normKey = key;
+    if (key === 'ShiftLeft' || key === 'ShiftRight') normKey = 'Shift';
+    if (key === 'ControlLeft' || key === 'ControlRight') normKey = 'Control';
+    if (key === 'AltLeft' || key === 'AltRight') normKey = 'Alt';
+    if (key === 'WinLeft' || key === 'WinRight') normKey = 'Meta';
+
+    const highlightKeyName = normKey;
+    highlightKey(highlightKeyName);
+    if (!challengeMode) exploreKey(normKey);
+  }
+
+  function highlightKey(key) {
+    document.querySelectorAll('.key.active').forEach(el => el.classList.remove('active'));
+    const target = document.querySelector(`.key[data-key="${CSS.escape(key)}"]`);
+    if (target) {
+      target.classList.add('active');
+      setTimeout(() => target.classList.remove('active'), 200);
+    }
+  }
+
+  const CODE_MAP = {
+    Backquote:'`', Minus:'-', Equal:'=',
+    Digit0:'0', Digit1:'1', Digit2:'2', Digit3:'3', Digit4:'4',
+    Digit5:'5', Digit6:'6', Digit7:'7', Digit8:'8', Digit9:'9',
+    KeyQ:'Q', KeyW:'W', KeyE:'E', KeyR:'R', KeyT:'T', KeyY:'Y',
+    KeyU:'U', KeyI:'I', KeyO:'O', KeyP:'P',
+    KeyA:'A', KeyS:'S', KeyD:'D', KeyF:'F', KeyG:'G', KeyH:'H',
+    KeyJ:'J', KeyK:'K', KeyL:'L',
+    Semicolon:';', Quote:"'", Backslash:'\\',
+    KeyZ:'Z', KeyX:'X', KeyC:'C', KeyV:'V', KeyB:'B',
+    KeyN:'N', KeyM:'M', Comma:',', Period:'.', Slash:'/',
+    Space:' ', Enter:'Enter', Backspace:'Backspace',
+    Tab:'Tab', CapsLock:'CapsLock',
+    ShiftLeft:'Shift', ShiftRight:'Shift',
+    ControlLeft:'Control', ControlRight:'Control',
+    AltLeft:'Alt', AltRight:'Alt',
+    MetaLeft:'Meta', MetaRight:'Meta'
+  };
+
+  function keyFromEvent(e) {
+    if (e.code && CODE_MAP[e.code]) return CODE_MAP[e.code];
+    let k = e.key;
+    if (typeof k === 'string' && k.length === 1) k = k.toUpperCase();
+    if (k === 'ShiftLeft' || k === 'ShiftRight') k = 'Shift';
+    if (k === 'ControlLeft' || k === 'ControlRight') k = 'Control';
+    if (k === 'AltLeft' || k === 'AltRight') k = 'Alt';
+    return k;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    const key = keyFromEvent(e);
+
+    if (practiceType === 'word') {
+      if (key === 'Enter') {
+        e.preventDefault();
+        submitWord();
+        return;
+      }
+      if (key === 'Backspace') {
+        typedBuffer = typedBuffer.slice(0, -1);
+        updateTypedDisplay();
+        return;
+      }
+      if (/^[A-Z]$/.test(key)) {
+        typedBuffer += key.toLowerCase();
+        updateTypedDisplay();
+        highlightKey(key);
+        return;
+      }
+      return;
+    }
+
+    activateKey(key);
+    if (challengeMode && !quizActive && (e.code === 'Space' || e.key === ' ')) {
+      e.preventDefault();
+      startQuizMinute();
+      return;
+    }
+    if (challengeMode && quizActive) checkAnswer(key);
+  });
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.id.startsWith('pai-')) {
+        document.getElementById('pai-explore').classList.remove('active');
+        document.getElementById('pai-challenge').classList.remove('active');
+        btn.classList.add('active');
+        challengeMode = (btn.id === 'pai-challenge');
+        document.getElementById('score-board').style.display = challengeMode ? '' : 'none';
+        stopQuizTimer();
+        quizActive = false;
+        timeLeft = 60;
+        updateTimerDisplay();
+        if (challengeMode) {
+          setFeedback('🎯 挑戰練習：請按【空白鍵】開始每分鐘測驗', 'neutral');
+          $btnNextMin.style.display = 'none';
+          clearGlow();
+          clearExploreGlow();
+          currentTarget = null;
+          exploreTarget = null;
+          $big.textContent = keyKana('A') || 'あ';
+updateRomajiHint();
+updateWordHint();
+        } else {
+          clearGlow();
+          clearExploreGlow();
+          currentTarget = null;
+          exploreTarget = null;
+          setFeedback('👀 自由探索：請按鍵盤上的任意鍵', 'neutral');
+          $big.textContent = keyKana('A') || 'あ';
+updateRomajiHint();
+updateWordHint();
+          $btnNextMin.style.display = 'none';
+          nextExploreTarget();
+          updateRomajiHint();
+updateWordHint();
+        }
+        updateRangeHint();
+      } else if (btn.dataset.script !== undefined) {
+        document.querySelectorAll('.script-group .mode-btn[data-script]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        scriptMode = btn.dataset.script;
+        if (scriptMode === 'mixed') currentShowKata = Math.random() < 0.5;
+        buildKeyboard();
+        if (challengeMode && currentTarget) {
+          $big.textContent = keyKana(currentTarget);
+updateRomajiHint(currentTarget);
+        } else if (!challengeMode) {
+          $big.textContent = keyKana('A') || 'あ';
+updateRomajiHint();
+updateWordHint();
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.keyboard-case-row .case-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.keyboard-case-row .case-btn[data-label]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      keyLabelMode = btn.dataset.label;
+      buildKeyboard();
+    });
+  });
+
+  document.getElementById('btn-romaji-on').addEventListener('click', () => {
+    document.getElementById('btn-romaji-on').classList.add('active');
+    document.getElementById('btn-romaji-off').classList.remove('active');
+    showRomaji = true;
+    updateRomajiHint();
+updateWordHint();
+  });
+  document.getElementById('btn-romaji-off').addEventListener('click', () => {
+    document.getElementById('btn-romaji-off').classList.add('active');
+    document.getElementById('btn-romaji-on').classList.remove('active');
+    showRomaji = false;
+    updateRomajiHint();
+updateWordHint();
+  });
+
+  document.getElementById('btn-order-rand').addEventListener('click', () => {
+    document.getElementById('btn-order-rand').classList.add('active');
+    document.getElementById('btn-order-seq').classList.remove('active');
+    sequentialOrder = false;
+    seqIndex = 0;
+  });
+  document.getElementById('btn-order-seq').addEventListener('click', () => {
+    document.getElementById('btn-order-seq').classList.add('active');
+    document.getElementById('btn-order-rand').classList.remove('active');
+    sequentialOrder = true;
+    seqIndex = 0;
+  });
+
+  document.querySelectorAll('.type-group .mode-btn[data-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.type-group .mode-btn[data-type]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      practiceType = btn.dataset.type;
+      // reset
+      typedBuffer = '';
+      updateBigRomajiVisibility();
+      if (challengeMode) { currentTarget = null; nextQuestion(); }
+      else { exploreTarget = null; nextExploreTarget(); }
+    });
+  });
+
+  document.getElementById('btn-ext-toggle').addEventListener('click', () => {
+    includeExtended = !includeExtended;
+    const btn = document.getElementById('btn-ext-toggle');
+    btn.textContent = includeExtended ? '濁音/拗音 ON' : '濁音/拗音 OFF';
+    btn.classList.toggle('active', includeExtended);
+  });
+
+  document.getElementById('btn-weak-toggle').addEventListener('click', () => {
+    weakReview = !weakReview;
+    const btn = document.getElementById('btn-weak-toggle');
+    btn.textContent = weakReview ? '複習 ON' : '複習 OFF';
+    btn.classList.toggle('active', weakReview);
+  });
+
+  document.getElementById('btn-dark-toggle').addEventListener('click', () => {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark', darkMode);
+    const btn = document.getElementById('btn-dark-toggle');
+    btn.textContent = darkMode ? '深色 ON' : '深色 OFF';
+    btn.classList.toggle('active', darkMode);
+    try { localStorage.setItem('ja_dark', darkMode ? '1' : '0'); } catch(e){}
+  });
+
+  document.getElementById('font-size-select').addEventListener('change', (e) => {
+    document.documentElement.style.fontSize = e.target.value + 'px';
+    try { localStorage.setItem('ja_fontsize', e.target.value); } catch(e){}
+  });
+
+  document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      jlptLevel = btn.dataset.jlpt;
+      rebuildWordList();
+    });
+  });
+
+  document.getElementById('rate-select').addEventListener('change', (e) => {
+    speechRate = parseFloat(e.target.value) || 1.0;
+  });
+
+  $rangeSelect.addEventListener('change', () => {
+    currentRange = $rangeSelect.value;
+    $customRow.style.display = currentRange === 'custom' ? 'flex' : 'none';
+    if (currentRange === 'custom') {
+      customStart = $customStart.value || 'A';
+      customEnd = $customEnd.value || 'Z';
+    }
+    computeAllowedKeys();
+    updateKeyRangeStates();
+    if (challengeMode) nextQuestion();
+  });
+
+  $customStart.addEventListener('input', () => {
+    customStart = $customStart.value || 'A';
+    computeAllowedKeys();
+    updateKeyRangeStates();
+    if (challengeMode) nextQuestion();
+  });
+  $customEnd.addEventListener('input', () => {
+    customEnd = $customEnd.value || 'Z';
+    computeAllowedKeys();
+    updateKeyRangeStates();
+    if (challengeMode) nextQuestion();
+  });
+
+  $btnEnable.addEventListener('click', initVoice);
+  $btnSpeak.addEventListener('click', () => {
+    let kana = '';
+    if (challengeMode && currentTarget) kana = (practiceType==='kana'||practiceType==='listen') ? (currentKanaStr || keyKana(currentTarget)) : '';
+    else if ($keyLabel.textContent) kana = KANA_MAP[$keyLabel.textContent] || $keyLabel.textContent;
+    if (practiceType === 'word' && currentWord) {
+      speakWord(currentWord.kana, currentWord.romaji);
+      return;
+    }
+    if (kana) speakKana(kana);
+    // also speak example word if available
+    const entry = (typeof JA_MAP !== 'undefined' && kana) ? JA_MAP[kana] : null;
+    if (entry) {
+      const w = (scriptMode === 'kata') ? entry.katakana_word : entry.hiragana_word;
+      if (w) {
+        const txt = w.katakana || w.kana || '';
+        const rom = w.romaji || '';
+        setTimeout(() => speakWord(txt, rom), 900);
+      }
+    }
+  });
+  $btnNextMin.addEventListener('click', () => {
+    if (!challengeMode) return;
+    startQuizMinute();
+  });
+  $btnReset.addEventListener('click', () => {
+    stopQuizTimer();
+    scoreCorrect = 0; scoreWrong = 0; streak = 0;
+    timeLeft = 60;
+    quizActive = false;
+    updateTimerDisplay();
+    updateScore();
+    $btnNextMin.style.display = 'inline-block';
+    $btnNextMin.textContent = '➡️ 開始下一分鐘';
+    setFeedback('🔄 計分已歸零，準備好就按「開始下一分鐘」', 'neutral');
+    clearGlow();
+    currentTarget = null;
+    $big.textContent = keyKana('A') || 'あ';
+updateRomajiHint();
+updateWordHint();
+  });
+
+  function startQuizMinute() {
+    if (quizActive) return;
+    quizActive = true;
+    timeLeft = 60;
+    updateTimerDisplay();
+    $btnNextMin.style.display = 'none';
+    nextQuestion();
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        stopQuizTimer();
+        quizActive = false;
+        clearGlow();
+        currentTarget = null;
+        $big.textContent = '⏰';
+        setFeedback('⏱️ 一分鐘到！成績：' + scoreCorrect + ' 正確 / ' + scoreWrong + ' 錯誤', 'neutral');
+        $btnNextMin.style.display = 'inline-block';
+        $btnNextMin.textContent = '➡️ 開始下一分鐘';
+        if (voiceEnabled) speakKana('時間です');
+      }
+    }, 1000);
+  }
+
+  function stopQuizTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function updateTimerDisplay() {
+    if (!$timerDisplay) return;
+    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const s = (timeLeft % 60).toString().padStart(2, '0');
+    $timerDisplay.textContent = m + ':' + s;
+    $timerDisplay.style.color = timeLeft <= 10 ? '#c0392b' : '#e74c3c';
+  }
+
+  /* ===== 五十音表 ===== */
+  const GOJUON = [
+    { row: '∅', cells: [['あ','a'],['い','i'],['う','u'],['え','e'],['お','o']] },
+    { row: 'k', cells: [['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko']] },
+    { row: 's', cells: [['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so']] },
+    { row: 't', cells: [['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to']] },
+    { row: 'n', cells: [['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no']] },
+    { row: 'h', cells: [['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho']] },
+    { row: 'm', cells: [['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo']] },
+    { row: 'y', cells: [['や','ya'],null,['ゆ','yu'],null,['よ','yo']] },
+    { row: 'r', cells: [['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro']] },
+    { row: 'w', cells: [['わ','wa'],null,null,null,['を','wo']] },
+    { row: 'n', cells: [['ん','n'],null,null,null,null] },
+  ];
+
+  function gojuonKeys() {
+    const keys = [];
+    GOJUON.forEach(r => {
+      r.cells.forEach(cell => {
+        if (!cell) return;
+        const kana = cell[0];
+        // find key whose KANA_MAP value === kana
+        for (const k in KANA_MAP) {
+          if (KANA_MAP[k] === kana && allowedKeys.has(k)) { keys.push(k); break; }
+        }
+      });
+    });
+    return keys;
+  }
+
+  function buildGojuon() {
+    const body = document.getElementById('gojuon-body');
+    if (!body) return;
+    const table = document.createElement('table');
+    table.className = 'gojuon-table';
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    const th0 = document.createElement('th');
+    th0.textContent = '子音＼母音';
+    hr.appendChild(th0);
+    ['a','i','u','e','o'].forEach(v => {
+      const th = document.createElement('th');
+      th.textContent = v;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    GOJUON.forEach(r => {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = r.row;
+      tr.appendChild(th);
+      r.cells.forEach(cell => {
+        const td = document.createElement('td');
+        if (!cell) {
+          td.className = 'empty';
+          td.textContent = '—';
+        } else {
+          const hira = cell[0];
+          const rom = cell[1];
+          const kata = hiraToKata(hira);
+          td.innerHTML = '<div><span class="hira">' + hira + '</span><span class="rom">' + rom + '</span></div><div class="kata">' + kata + '</div>';
+          td.style.cursor = 'pointer';
+          td.dataset.kana = hira;
+          td.addEventListener('click', () => {
+            // find corresponding key
+            let key = null;
+            for (const k in KANA_MAP) { if (KANA_MAP[k] === hira) { key = k; break; } }
+            const disp = (scriptMode === 'kata') ? kata : (scriptMode === 'mixed' ? (currentShowKata ? kata : hira) : hira);
+            $big.textContent = disp;
+            if (key) {
+              $keyLabel.textContent = key;
+              updateRomajiHint(key);
+    updateWordHint(key);
+              clearExploreGlow(); clearGlow();
+              const el = document.querySelector('.key[data-key="' + CSS.escape(key) + '"]');
+              if (el) { el.classList.add('explore-glow'); setTimeout(()=>el.classList.remove('explore-glow'),1200); }
+              if (!challengeMode) { exploreTarget = key; }
+              else { currentTarget = key; const tel = document.querySelector('.key[data-key="' + CSS.escape(key) + '"]'); if (tel) { clearGlow(); tel.classList.add('target-glow'); } }
+            }
+            if (voiceEnabled) speakKana(disp);
+            setFeedback('🔍 自學：請按 ' + disp, 'neutral');
+          });
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    body.innerHTML = '';
+    body.appendChild(table);
+  }
+
+  // load persisted prefs
+  try {
+    if (localStorage.getItem('ja_dark') === '1') { darkMode = true; document.body.classList.add('dark'); const b = document.getElementById('btn-dark-toggle'); if (b) { b.textContent = '深色 ON'; b.classList.add('active'); } }
+    const fs = localStorage.getItem('ja_fontsize');
+    if (fs) { document.documentElement.style.fontSize = fs + 'px'; const s = document.getElementById('font-size-select'); if (s) s.value = fs; }
+  } catch(e) {}
+  computeAllowedKeys();
+  buildKeyboard();
+  rebuildWordList();
+  document.getElementById('score-board').style.display = 'none';
+  updateBigRomajiVisibility();
+  updateScore();
+  updateTimerDisplay();
+  nextExploreTarget();
+</script>
+
+</body>
+</html>
