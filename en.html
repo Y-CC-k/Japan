@@ -773,6 +773,12 @@
     currentTarget = pool[Math.floor(Math.random() * pool.length)];
 
     $big.textContent = displayChar(currentTarget);
+    const wd = document.getElementById('word-display');
+    if (wd && practiceTypeEn === 'letter') {
+      const w = EN_LETTER_WORDS[displayChar(currentTarget).toUpperCase()];
+      if (w) wd.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      else wd.textContent = '';
+    }
     setFeedback('🎯 請按：' + displayChar(currentTarget) + '（鍵盤會發亮）', 'neutral');
     $finger.textContent = getFingerInfo(currentTarget).finger + '（提示）';
     $keyLabel.textContent = currentTarget;
@@ -839,6 +845,12 @@
     exploreTarget = pool[Math.floor(Math.random() * pool.length)];
 
     $big.textContent = displayChar(exploreTarget);
+    const wd2 = document.getElementById('word-display');
+    if (wd2 && practiceTypeEn === 'letter') {
+      const w = EN_LETTER_WORDS[displayChar(exploreTarget).toUpperCase()];
+      if (w) wd2.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      else wd2.textContent = '';
+    }
     setFeedback('🔍 請按鍵盤：' + displayChar(exploreTarget), 'neutral');
     $finger.textContent = getFingerInfo(exploreTarget).finger;
     $keyLabel.textContent = exploreTarget;
@@ -884,6 +896,12 @@
 
     // 沒有探索目標時：單純顯示按下的鍵
     $big.textContent = displayChar(pressedKey);
+    const wd3 = document.getElementById('word-display');
+    if (wd3 && practiceTypeEn === 'letter') {
+      const w = EN_LETTER_WORDS[displayChar(pressedKey).toUpperCase()];
+      if (w) wd3.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      else wd3.textContent = '';
+    }
     $finger.textContent = info.finger;
     $keyLabel.textContent = pressedKey;
     $finger.style.color = info.hand === 'left' ? 'var(--left)'
@@ -1046,6 +1064,12 @@
           });
           if (challengeMode && currentTarget) {
             $big.textContent = displayChar(currentTarget);
+    const wd = document.getElementById('word-display');
+    if (wd && practiceTypeEn === 'letter') {
+      const w = EN_LETTER_WORDS[displayChar(currentTarget).toUpperCase()];
+      if (w) wd.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      else wd.textContent = '';
+    }
           } else if (!challengeMode) {
             $big.textContent = displayChar('A');
           }
@@ -1159,6 +1183,11 @@
 
   /* ===== 單字練習 ===== */
   const EN_WORDS = (window.EN_DATA || []).map(w => ({ kana: w.word, romaji: w.word.toLowerCase(), meaning: w.meaning || '', sentence: w.sentence || '' }));
+  const EN_LETTER_WORDS = {};
+  EN_WORDS.forEach(w => {
+    const c = (w.kana||'').charAt(0).toUpperCase();
+    if (c >= 'A' && c <= 'Z' && !EN_LETTER_WORDS[c]) EN_LETTER_WORDS[c] = w;
+  });
 
   function nextWordEn() {
     if (EN_WORDS.length === 0) { setFeedback('單字資料載入失敗', 'bad'); return; }
