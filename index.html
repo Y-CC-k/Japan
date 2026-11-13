@@ -847,7 +847,7 @@
       $wordHint.innerHTML = '<span style="font-weight:700;">' + kana + '</span> '
         + '<span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
         + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '')
-        + (SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] ? '<br><span style="color:var(--muted);font-size:13px;">例句：' + SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] + '</span>' : '');
+        + (SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] ? '<br><span style="color:var(--muted);font-size:16px;">例句：' + SENTENCES[String.fromCharCode(kana.charCodeAt(0)-0x60)] + '</span>' : '');
       // speak the word
       // word speech handled by caller after kana speech
     } else {
@@ -859,7 +859,7 @@
         + (kanji ? ' <span style="color:var(--muted);">(' + kanji + ')</span>' : '')
         + ' <span style="color:var(--accent);font-size:12px;">' + rom + '</span>'
         + (meaning ? ' <span style="color:var(--muted);">— ' + meaning + '</span>' : '')
-        + (SENTENCES[kana.charAt(0)] ? '<br><span style="color:var(--muted);font-size:13px;">例句：' + SENTENCES[kana.charAt(0)] + '</span>' : '');
+        + (SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)] ? '<br><span style="color:var(--muted);font-size:16px;">例句：' + SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)] + '</span>' : '');
       // word speech handled by caller after kana speech
     }
   }
@@ -1032,6 +1032,8 @@
           const _text = _w.katakana || _w.kana || '';
           const _rom = _w.romaji || '';
           setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
         }
       }
     }
@@ -1125,6 +1127,8 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
           const _text = _w.katakana || _w.kana || '';
           const _rom = _w.romaji || '';
           setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
         }
       }
     }
@@ -1152,6 +1156,8 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
               const _text = _w.katakana || _w.kana || '';
               const _rom = _w.romaji || '';
               setTimeout(() => speakWord(_text, _rom), 900);
+          const _sent = SENTENCES[(typeof _kana !== 'undefined' ? _kana : kana).charAt(0)];
+          if (_sent) setTimeout(() => speakWord(_sent, null), 1800);
             }
           }
         }
