@@ -776,7 +776,7 @@
     const wd = document.getElementById('word-display');
     if (wd && practiceTypeEn === 'letter') {
       const w = EN_LETTER_WORDS[displayChar(currentTarget).toUpperCase()];
-      if (w) wd.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      if (w) wd.innerHTML = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '<br>' + w.sentence : '');
       else wd.textContent = '';
     }
     setFeedback('🎯 請按：' + displayChar(currentTarget) + '（鍵盤會發亮）', 'neutral');
@@ -848,7 +848,7 @@
     const wd2 = document.getElementById('word-display');
     if (wd2 && practiceTypeEn === 'letter') {
       const w = EN_LETTER_WORDS[displayChar(exploreTarget).toUpperCase()];
-      if (w) wd2.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      if (w) wd2.innerHTML = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '<br>' + w.sentence : '');
       else wd2.textContent = '';
     }
     setFeedback('🔍 請按鍵盤：' + displayChar(exploreTarget), 'neutral');
@@ -899,7 +899,7 @@
     const wd3 = document.getElementById('word-display');
     if (wd3 && practiceTypeEn === 'letter') {
       const w = EN_LETTER_WORDS[displayChar(pressedKey).toUpperCase()];
-      if (w) wd3.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      if (w) wd3.innerHTML = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '<br>' + w.sentence : '');
       else wd3.textContent = '';
     }
     $finger.textContent = info.finger;
@@ -1068,7 +1068,7 @@
     const wd = document.getElementById('word-display');
     if (wd && practiceTypeEn === 'letter') {
       const w = EN_LETTER_WORDS[displayChar(currentTarget).toUpperCase()];
-      if (w) wd.textContent = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '  ' + w.sentence : '');
+      if (w) wd.innerHTML = w.kana + (w.meaning ? '  ' + w.meaning : '') + (w.sentence ? '<br>' + w.sentence : '');
       else wd.textContent = '';
     }
           } else if (!challengeMode) {
@@ -1196,7 +1196,7 @@
     typedBufferEn = '';
     $big.textContent = currentWordEn.kana;
     const wd = document.getElementById('word-display');
-    if (wd) wd.textContent = currentWordEn.meaning + (currentWordEn.sentence ? '  ' + currentWordEn.sentence : '');
+    if (wd) wd.innerHTML = (currentWordEn.meaning ? currentWordEn.meaning : '') + (currentWordEn.sentence ? '<br>' + currentWordEn.sentence : '');
     const td = document.getElementById('typed-display-en');
     if (td) td.textContent = '';
     setFeedback('⌨️ 請輸入單字，按 Enter 送出', 'neutral');
