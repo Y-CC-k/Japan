@@ -347,12 +347,6 @@
     </div>
 
     <div class="settings-flex">
-      <div class="setting-group">
-        <label style="font-size:16px;">練習模式：</label>
-        <button type="button" class="mode-btn active" id="pai-explore">👀 自由探索</button>
-        <button type="button" class="mode-btn" id="pai-challenge">🎯 挑戰練習</button>
-      </div>
-
       <div class="setting-group theme-group">
         <label style="font-size:16px;">主題：</label>
         <button type="button" class="mode-btn" id="btn-dark-toggle">深色 OFF</button>
@@ -389,6 +383,15 @@
         </select>
       </div>
 
+    </div>
+
+    <div class="settings-flex">
+      <div class="setting-group">
+        <label style="font-size:16px;">練習模式：</label>
+        <button type="button" class="mode-btn active" id="pai-explore">👀 自由探索</button>
+        <button type="button" class="mode-btn" id="pai-challenge">🎯 挑戰練習</button>
+      </div>
+
       <div class="setting-group range-group">
         <label style="font-size:18px;">出題範圍：</label>
         <select id="range-select" style="font-size:18px; padding:4px 8px;">
@@ -405,9 +408,7 @@
         <label>從 <input type="text" id="custom-start" value="A" maxlength="1"></label>
         <label>到 <input type="text" id="custom-end" value="Z" maxlength="1"></label>
       </div>
-    </div>
 
-    <div class="settings-flex">
       <div class="setting-group">
         <button type="button" id="btn-enable-voice" class="warn">🔈 啟用聲音</button>
         <button type="button" id="btn-speak">🔊 重複發音</button>
