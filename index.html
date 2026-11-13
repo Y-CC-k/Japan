@@ -939,7 +939,7 @@
       soundCorrect();
       setFeedback('✅ 正確！' + currentWord.kana + ' = ' + currentWord.romaji, 'ok');
       flashCard('flash-correct', 500);
-      setTimeout(nextWord, 900);
+      setTimeout(nextWord, 1500);
     } else {
       scoreWrong++; streak=0; updateScore();
       soundWrong();
@@ -1049,7 +1049,7 @@
       $keyLabel.textContent = pressedKey;
       updateRomajiHint(pressedKey);
     updateWordHint(pressedKey);
-setTimeout(nextQuestion, 900);
+setTimeout(nextQuestion, 1500);
     } else {
       updateSrs(currentTarget, false);
       scoreWrong++;
@@ -1143,7 +1143,7 @@ $finger.style.color = getFingerInfo(exploreTarget).hand === 'left' ? 'var(--left
             }
           }
         }
-        setTimeout(nextExploreTarget, 700);
+        setTimeout(nextExploreTarget, 1200);
         return;
       } else {
         soundWrong();
