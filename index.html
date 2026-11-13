@@ -336,6 +336,27 @@
         <button type="button" class="mode-btn" id="btn-ext-toggle">濁音/拗音 OFF</button>
       </div>
 
+      <div class="setting-group jlpt-group">
+        <label style="font-size:16px;">JLPT：</label>
+        <button type="button" class="mode-btn active" data-jlpt="N5">N5</button>
+        <button type="button" class="mode-btn" data-jlpt="N4">N4</button>
+        <button type="button" class="mode-btn" data-jlpt="N3">N3</button>
+        <button type="button" class="mode-btn" data-jlpt="N2">N2</button>
+        <button type="button" class="mode-btn" data-jlpt="N1">N1</button>
+        <button type="button" class="mode-btn" data-jlpt="all">全部</button>
+      </div>
+
+      <div class="setting-group rate-group">
+        <label style="font-size:16px;">語速：</label>
+        <select id="rate-select" style="font-size:14px; padding:2px 6px;">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+        </select>
+      </div>
+
       <div class="setting-group order-group">
         <label style="font-size:16px;">練習順序：</label>
         <button type="button" class="mode-btn active" id="btn-order-rand">隨機</button>
@@ -513,6 +534,8 @@
   let seqIndex = 0;
   let practiceType = 'kana'; // kana / word / listen
   let includeExtended = false;
+  let jlptLevel = 'N5';
+  let speechRate = 1.0;
   let typedBuffer = '';
   let currentWord = null;
   let currentKanaStr = '';
@@ -535,6 +558,81 @@
   const $typedDisplay = document.getElementById('typed-display');
 
   // Build kana -> data entry map from JA_DATA
+  const JLPT_DATA = {
+    N5: [
+      {kana:'あさ',romaji:'asa',meaning:'早上',kanji:'朝'},
+      {kana:'あめ',romaji:'ame',meaning:'雨',kanji:'雨'},
+      {kana:'いぬ',romaji:'inu',meaning:'狗',kanji:'犬'},
+      {kana:'うみ',romaji:'umi',meaning:'海',kanji:'海'},
+      {kana:'えき',romaji:'eki',meaning:'車站',kanji:'駅'},
+      {kana:'おちゃ',romaji:'ocha',meaning:'茶',kanji:'お茶'},
+      {kana:'かさ',romaji:'kasa',meaning:'雨傘',kanji:'傘'},
+      {kana:'くるま',romaji:'kuruma',meaning:'車',kanji:'車'},
+      {kana:'さかな',romaji:'sakana',meaning:'魚',kanji:'魚'},
+      {kana:'しお',romaji:'shio',meaning:'鹽',kanji:'塩'},
+      {kana:'すし',romaji:'sushi',meaning:'壽司',kanji:'寿司'},
+      {kana:'たまご',romaji:'tamago',meaning:'雞蛋',kanji:'卵'},
+      {kana:'ちず',romaji:'chizu',meaning:'地圖',kanji:'地図'},
+      {kana:'つくえ',romaji:'tsukue',meaning:'書桌',kanji:'机'},
+      {kana:'てがみ',romaji:'tegami',meaning:'信件',kanji:'手紙'},
+      {kana:'とけい',romaji:'tokei',meaning:'時鐘',kanji:'時計'},
+      {kana:'なつ',romaji:'natsu',meaning:'夏天',kanji:'夏'},
+      {kana:'ねこ',romaji:'neko',meaning:'貓',kanji:'猫'},
+      {kana:'のみもの',romaji:'nomimono',meaning:'飲料',kanji:'飲み物'},
+      {kana:'はな',romaji:'hana',meaning:'花',kanji:'花'},
+      {kana:'ひと',romaji:'hito',meaning:'人',kanji:'人'},
+      {kana:'ほん',romaji:'hon',meaning:'書',kanji:'本'},
+      {kana:'まど',romaji:'mado',meaning:'窗',kanji:'窓'},
+      {kana:'みず',romaji:'mizu',meaning:'水',kanji:'水'},
+      {kana:'やま',romaji:'yama',meaning:'山',kanji:'山'},
+      {kana:'ゆき',romaji:'yuki',meaning:'雪',kanji:'雪'},
+      {kana:'よる',romaji:'yoru',meaning:'夜晚',kanji:'夜'},
+      {kana:'らーめん',romaji:'raamen',meaning:'拉麵',kanji:'ラーメン'},
+      {kana:'りんご',romaji:'ringo',meaning:'蘋果',kanji:'林檎'},
+      {kana:'れすとらん',romaji:'resutoran',meaning:'餐廳',kanji:'レストラン'},
+    ],
+    N4: [
+      {kana:'あたらしい',romaji:'atarashii',meaning:'新的',kanji:'新しい'},
+      {kana:'あつい',romaji:'atsui',meaning:'熱的',kanji:'暑い'},
+      {kana:'いそがしい',romaji:'isogashii',meaning:'忙碌的',kanji:'忙しい'},
+      {kana:'うれしい',romaji:'ureshii',meaning:'開心的',kanji:'嬉しい'},
+      {kana:'おいしい',romaji:'oishii',meaning:'好吃的',kanji:'美味しい'},
+      {kana:'おおきい',romaji:'ookii',meaning:'大的',kanji:'大きい'},
+      {kana:'かわいい',romaji:'kawaii',meaning:'可愛的',kanji:'可愛い'},
+      {kana:'きれい',romaji:'kirei',meaning:'漂亮的',kanji:'綺麗'},
+      {kana:'げんき',romaji:'genki',meaning:'有精神',kanji:'元気'},
+      {kana:'しずか',romaji:'shizuka',meaning:'安靜的',kanji:'静か'},
+      {kana:'すき',romaji:'suki',meaning:'喜歡',kanji:'好き'},
+      {kana:'ちいさい',romaji:'chiisai',meaning:'小的',kanji:'小さい'},
+      {kana:'つめたい',romaji:'tsumetai',meaning:'冷的',kanji:'冷たい'},
+      {kana:'ねむい',romaji:'nemui',meaning:'想睡的',kanji:'眠い'},
+      {kana:'やさしい',romaji:'yasashii',meaning:'溫柔的',kanji:'優しい'},
+    ],
+    N3: [
+      {kana:'あんぜん',romaji:'anzen',meaning:'安全',kanji:'安全'},
+      {kana:'かんたん',romaji:'kantan',meaning:'簡單',kanji:'簡単'},
+      {kana:'きけん',romaji:'kiken',meaning:'危險',kanji:'危険'},
+      {kana:'べんり',romaji:'benri',meaning:'方便',kanji:'便利'},
+      {kana:'ふくざつ',romaji:'fukuzatsu',meaning:'複雜',kanji:'複雑'},
+      {kana:'たいせつ',romaji:'taisetsu',meaning:'重要',kanji:'大切'},
+      {kana:'ひつよう',romaji:'hitsuyou',meaning:'必要',kanji:'必要'},
+      {kana:'むり',romaji:'muri',meaning:'不可能',kanji:'無理'},
+    ],
+    N2: [
+      {kana:'あいまい',romaji:'aimai',meaning:'模糊',kanji:'曖昧'},
+      {kana:'かんがえ',romaji:'kangae',meaning:'想法',kanji:'考え'},
+      {kana:'じゆう',romaji:'jiyuu',meaning:'自由',kanji:'自由'},
+      {kana:'せきにん',romaji:'sekinin',meaning:'責任',kanji:'責任'},
+      {kana:'やくそく',romaji:'yakusoku',meaning:'約定',kanji:'約束'},
+    ],
+    N1: [
+      {kana:'あいまい',romaji:'aimai',meaning:'曖昧',kanji:'曖昧'},
+      {kana:'けいけん',romaji:'keiken',meaning:'經驗',kanji:'経験'},
+      {kana:'しんけん',romaji:'shinken',meaning:'認真',kanji:'真剣'},
+      {kana:'ちゅうちょう',romaji:'chuuchou',meaning:'妥協',kanji:'妥協'},
+      {kana:'やむをえない',romaji:'yamuwoenai',meaning:'不得已',kanji:'やむを得ない'},
+    ]
+  };
   const JA_MAP = {};
   const WORD_LIST = [];
   const SENTENCES = {
@@ -552,13 +650,34 @@
         window.JA_DATA.seion.forEach(e => {
           if (e.hiragana) JA_MAP[e.hiragana] = e;
           if (e.katakana) JA_MAP[e.katakana] = e;
+        });
+      }
+    } catch (err) {}
+  })();
+
+  function rebuildWordList() {
+    WORD_LIST.length = 0;
+    // from JA_DATA seion words
+    try {
+      if (window.JA_DATA && Array.isArray(window.JA_DATA.seion)) {
+        window.JA_DATA.seion.forEach(e => {
           if (e.hiragana_word && e.hiragana_word.kana) {
             WORD_LIST.push({ kana: e.hiragana_word.kana, romaji: (e.hiragana_word.romaji||'').toLowerCase(), meaning: e.hiragana_word.meaning_zh||'', kanji: e.hiragana_word.kanji||'' });
           }
         });
       }
     } catch (err) {}
-  })();
+    // JLPT words
+    const levels = (jlptLevel === 'all') ? Object.keys(JLPT_DATA) : [jlptLevel];
+    levels.forEach(lv => {
+      const arr = JLPT_DATA[lv];
+      if (Array.isArray(arr)) {
+        arr.forEach(w => {
+          WORD_LIST.push({ kana: w.kana, romaji: (w.romaji||'').toLowerCase(), meaning: w.meaning||'', kanji: w.kanji||'' });
+        });
+      }
+    });
+  }
   const $feedback = document.getElementById('feedback-message');
   const $finger = document.getElementById('finger-info');
   const $keyLabel = document.getElementById('key-label');
@@ -687,7 +806,7 @@
       const jaVoice = voicesReady ? availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja')) : null;
       const u = new SpeechSynthesisUtterance(jaVoice ? text : (romaji || text));
       u.lang = jaVoice ? 'ja-JP' : 'en-US';
-      u.rate = 0.9;
+      u.rate = speechRate;
       u.volume = 1;
       if (jaVoice) u.voice = jaVoice;
       currentUtterance = u;
@@ -702,7 +821,7 @@
       const jaVoice = voicesReady ? availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja')) : null;
       const u = new SpeechSynthesisUtterance(jaVoice ? kana : romajiOf(kana));
       u.lang = jaVoice ? 'ja-JP' : 'en-US';
-      u.rate = 0.9;
+      u.rate = speechRate;
       u.volume = 1;
       if (jaVoice) u.voice = jaVoice;
       u.onerror = (e) => {
@@ -1384,6 +1503,19 @@ updateWordHint();
     btn.classList.toggle('active', includeExtended);
   });
 
+  document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.jlpt-group .mode-btn[data-jlpt]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      jlptLevel = btn.dataset.jlpt;
+      rebuildWordList();
+    });
+  });
+
+  document.getElementById('rate-select').addEventListener('change', (e) => {
+    speechRate = parseFloat(e.target.value) || 1.0;
+  });
+
   $rangeSelect.addEventListener('change', () => {
     currentRange = $rangeSelect.value;
     $customRow.style.display = currentRange === 'custom' ? 'flex' : 'none';
@@ -1587,6 +1719,7 @@ updateWordHint();
 
   computeAllowedKeys();
   buildKeyboard();
+  rebuildWordList();
   document.getElementById('score-board').style.display = 'none';
   updateBigRomajiVisibility();
   updateScore();
